@@ -141,7 +141,7 @@ class HistoryMaster():
                 self.remove_color(0)
                 self.reset()
             self.colors.append(color)
-            new_color = Palette_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row)
+            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row)
             self.color_buttons.append(new_color)
 
             if self.current_column == 0:
@@ -170,7 +170,7 @@ class HistoryMaster():
             elem.remove_self()
         self.color_buttons = []
         for color in self.colors:
-            self.color_buttons.append(Palette_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row))
+            self.color_buttons.append(History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row))
             if self.current_column == 0:
                 self.current_column = 1
             else:
@@ -243,7 +243,7 @@ class ColorButton():
 
 
 
-class Palette_ColorButton():
+class History_ColorButton():
     def __init__(self, root, window_ref, parent_widget, color, index, column, row):
         self.window_root = root
         self.window_ref = window_ref
@@ -274,3 +274,29 @@ class Palette_ColorButton():
     def remove_self(self):
         self.MainFrame.destroy()
         del self
+
+
+
+class Palette_Color_Button(History_ColorButton):
+    def __init__(self, root, window_ref, parent_widget, color, index, column, row):
+        super().__init__(root, window_ref, parent_widget, color, index, column, row)
+
+        self.ColorName = "Enter name"
+
+
+        self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2)
+        self.MainFrame.grid(row=row, column=column)
+
+        self.NameEntry = Entry(self.MainFrame, bg="#212024", fg="#aba7a7", width=10, highlightthickness=0)
+        self.NameEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
+        self.NameEntry.insert(END, self.ColorName)
+        self.NameEntry.grid(row=0, column=0)
+
+        self.ColorButton = Button(self.MainFrame, height=1, width=8, bg=self.color[1], highlightbackground="black",
+                                  highlightthickness=2, bd=0, command=None)
+        self.ColorButton.grid(row=1, column=0)
+
+        self.HEXEntry = Entry(self.MainFrame, bg="#212024", fg="#aba7a7", width=10, highlightthickness=0)
+        self.HEXEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
+        self.HEXEntry.insert(END, self.color[1])
+        self.HEXEntry.grid(row=2, column=0)
