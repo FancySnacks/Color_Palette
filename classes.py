@@ -34,7 +34,7 @@ class MainWindow:
             # Color values
             # HEX
         self.HexFrame = Frame(self.ColorFrame, bg="#212024")
-        self.HexFrame.grid(row=2, column=0, sticky="NW")
+        self.HexFrame.grid(row=3, column=0, sticky="NW")
 
         self.HexLabel = Label(self.HexFrame, text="Hex Code :", font=("Lato", 11, "bold"), bg="#212024", fg="#aba7a7", pady=5)
         self.HexLabel.grid(row=0, column=0, sticky="NW")
@@ -50,7 +50,7 @@ class MainWindow:
 
             # RGB
         self.RGBFrame = Frame(self.ColorFrame, bg="#212024")
-        self.RGBFrame.grid(row=3, column=0, sticky="NW")
+        self.RGBFrame.grid(row=4, column=0, sticky="NW")
 
         self.RGBLabel = Label(self.RGBFrame, text="RGB Code :", font=("lato", 11, "bold"), bg="#212024", fg="#aba7a7", pady=5)
         self.RGBLabel.grid(row=0, column=0, sticky="NW")
@@ -64,13 +64,6 @@ class MainWindow:
 
         self.RGBCopyButton = ClipboardButton(self.root, MainWindow, self.RGBFrame, color_button.current_color[0])
 
-        # Palette list frame
-        self.PaletteFrame = Frame(self.MainFrame, bg="#212024", padx=10)
-        self.PaletteFrame.grid(row=0, column=4, rowspan=2, columnspan=2, sticky="NE")
-
-        self.PaletteLabel = Label(self.PaletteFrame, font=("Lato", 12), bg="#212024", text="🎨  Palettes", fg="white", pady=5)
-        self.PaletteLabel.grid(row=0, column=0, sticky="NW")
-
         # Color history frame
         self.HistoryFrame = Frame(self.MainFrame, bg="#212024", padx=10)
         self.HistoryFrame.grid(row=0, column=2, rowspan=2, columnspan=2, sticky="NE")
@@ -79,6 +72,7 @@ class MainWindow:
         self.HistoryLabel.grid(row=0, column=0, sticky="NW")
 
         self.HistoryMaster = HistoryMaster(self.root, self, self.HistoryFrame)
+        self.HistoryMaster.add_to_history(self.ColorButton.current_color)
 
         # Clear history button
         self.ClearButtonFrame = Frame(self.HistoryFrame, bg="#212024")
@@ -86,9 +80,25 @@ class MainWindow:
         self.ClearButton = Button(self.ClearButtonFrame, font=("Arial", 10), text="❌ Clear", fg="white", bg="#212024", command=self.HistoryMaster.clear_history)
         self.ClearButton.grid(row=0, column=0, sticky="NW")
 
+        # Palette list frame
+        self.PaletteFrame = Frame(self.MainFrame, bg="#212024", padx=10)
+        self.PaletteFrame.grid(row=0, column=4, rowspan=2, columnspan=2, sticky="NE")
+
+        self.PaletteLabel = Label(self.PaletteFrame, font=("Lato", 12), bg="#212024", text="🎨  Palettes", fg="white", pady=5)
+        self.PaletteLabel.grid(row=0, column=0, sticky="NW")
+
+        self.PaletteMaster = HistoryMaster(self.root, self, self.PaletteFrame)
+
+        # Add color to palette button
+        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024")
+        self.AddColorFrame.grid(row=2, column=0, sticky="NW")
+        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="Add Color to Palette", fg="white", bg="#212024", command=self.add_color_to_palette)
+        self.AddColorButton.grid(row=0, column=0, sticky="NW")
+
 
         # Display main window
         self.root.mainloop()
+
 
     # Functions
 
@@ -109,6 +119,9 @@ class MainWindow:
         # Add color button to the history
         self.HistoryMaster.add_to_history((rgb_value, hex_value))
 
+    def add_color_to_palette(self):
+        self.PaletteMaster.add_to_palette(self.ColorButton.current_color)
+
 
 
 class HistoryMaster():
@@ -128,8 +141,6 @@ class HistoryMaster():
 
         self.current_column = 0
         self.current_row = 0
-
-        self.add_to_history(self.window_ref.ColorButton.current_color)
 
 
     # Functions
@@ -187,6 +198,20 @@ class HistoryMaster():
         self.color_buttons = []
         self.current_column = 0
         self.current_row = 0
+
+    def add_to_palette(self, color):
+        self.colors.append(color)
+        new_color = Palette_Color_Button(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row)
+        self.color_buttons.append(new_color)
+
+        if self.current_column == 0:
+            self.current_column = 1
+        elif self.current_column == 1:
+            self.current_column = 2
+        else:
+            self.current_column = 0
+            self.current_row += 1
+
 
 
 class ClipboardButton():
@@ -257,6 +282,7 @@ class History_ColorButton():
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2)
         self.MainFrame.grid(row=row, column=column)
 
+        print(self.color)
         self.ColorButton = Button(self.MainFrame, height=1, width=8, bg=self.color[1], highlightbackground = "black", highlightthickness = 2, bd=0, command=self.change_main_color)
         self.ColorButton.grid(row=0, column=0)
 
@@ -281,7 +307,7 @@ class Palette_Color_Button(History_ColorButton):
     def __init__(self, root, window_ref, parent_widget, color, index, column, row):
         super().__init__(root, window_ref, parent_widget, color, index, column, row)
 
-        self.ColorName = "Enter name"
+        self.ColorName = "Name"
 
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2)
