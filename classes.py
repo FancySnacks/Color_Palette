@@ -90,9 +90,9 @@ class MainWindow:
         self.PaletteMaster = HistoryMaster(self.root, self, self.PaletteFrame)
 
         # Add color to palette button
-        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024")
+        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=5)
         self.AddColorFrame.grid(row=2, column=0, sticky="NW")
-        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="Add Color to Palette", fg="white", bg="#212024", command=self.add_color_to_palette)
+        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add to Palette", fg="white", bg="#212024", command=self.add_color_to_palette)
         self.AddColorButton.grid(row=0, column=0, sticky="NW")
 
 
@@ -319,10 +319,16 @@ class Palette_Color_Button(History_ColorButton):
         self.NameEntry.grid(row=0, column=0)
 
         self.ColorButton = Button(self.MainFrame, height=1, width=8, bg=self.color[1], highlightbackground="black",
-                                  highlightthickness=2, bd=0, command=None)
+                                  highlightthickness=2, bd=0, command=self.change_main_color)
         self.ColorButton.grid(row=1, column=0)
 
         self.HEXEntry = Entry(self.MainFrame, bg="#212024", fg="#aba7a7", width=10, highlightthickness=0)
         self.HEXEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
         self.HEXEntry.insert(END, self.color[1])
         self.HEXEntry.grid(row=2, column=0)
+
+
+    # Functions
+
+    def change_main_color(self):
+        self.window_ref.ColorButton.update_color(self.color)
