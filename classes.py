@@ -12,10 +12,10 @@ class MainWindow:
         self.root.title("Color Palette")
         self.root.config(bg="#212024")
 
-        self.ColorButton = None
-
         # Variables
+        self.ColorButton = None
         self.picked_color = None
+        self.context = ""
 
         # Main Container
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
@@ -95,8 +95,8 @@ class MainWindow:
         self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add ", fg="white", bg="#212024", command=self.add_color_to_palette)
         self.AddColorButton.grid(row=0, column=0, sticky="NW")
 
-        self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove ", fg="white",
-                                     bg="#212024", command=self.remove_color_from_palette)
+        self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove (🎨)", fg="white",
+                                     bg="#212024", command=self.remove_color)
         self.DelColorButton.grid(row=0, column=1, sticky="NW")
 
 
@@ -106,7 +106,9 @@ class MainWindow:
 
     # Functions
 
-    def update_color_values(self, hex_value, rgb_value):
+    def update_color_values(self, hex_value, rgb_value, context):
+        self.update_context(context)
+
         # HEX
         self.HexEntry.delete(0, END)
         self.HexEntry.insert(END, hex_value)
@@ -123,14 +125,26 @@ class MainWindow:
         # Add color button to the history
         self.HistoryMaster.add_to_history((rgb_value, hex_value))
 
+    def update_context(self, context):
+        self.context = context
+        if context == "palette":
+            self.DelColorButton.config(text="❌ Remove (🎨)")
+        else:
+            self.DelColorButton.config(text="❌ Remove (⌛)")
+
     def add_color_to_palette(self):
         self.PaletteMaster.add_to_palette(self.ColorButton.current_color)
 
-    def remove_color_from_palette(self):
-        self.PaletteMaster.remove_from_palette(self.ColorButton.current_color)
+    def remove_color(self):
+        if self.context == "palette":
+            self.PaletteMaster.remove_from_palette(self.ColorButton.current_color)
+        else:
+            self.HistoryMaster.remove_from_palette(self.ColorButton.current_color)
 
 
 
+# Stores colors
+# Is used both for color history and color palettes
 class HistoryMaster():
     def __init__(self, root, window_ref, parent_widget):
         self.window_root = root
@@ -233,9 +247,6 @@ class HistoryMaster():
                 self.current_column = 0
                 self.current_row += 1
 
-        #else:
-            #print("fail")
-
 
 
 
@@ -281,15 +292,15 @@ class ColorButton():
     def pick_color(self):
         color = colorchooser.askcolor(title="Pick a color")
         if color != (None, None):
-            self.update_color(color)
+            self.update_color(color, "")
             print(color)
         else:
             print("No color was picked")
 
-    def update_color(self, color):
+    def update_color(self, color, context):
         self.current_color = color
         self.ColorButton.config(bg=color[1])
-        self.window_ref.update_color_values(hex_value=self.current_color[1], rgb_value=self.current_color[0])
+        self.window_ref.update_color_values(hex_value=self.current_color[1], rgb_value=self.current_color[0], context=context)
 
 
 
@@ -331,7 +342,7 @@ class History_ColorButton():
     # Functions
 
     def change_main_color(self):
-        self.window_ref.ColorButton.update_color(self.color)
+        self.window_ref.ColorButton.update_color(self.color, "palette" if self.b_palette else "history")
 
     def remove_self(self):
         self.MainFrame.destroy()
