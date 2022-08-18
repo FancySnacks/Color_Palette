@@ -19,7 +19,8 @@ class MainWindow:
         self.context = ""
 
         # Palettes
-        self.saved_palettes = ["Temporary Palette"]
+        self.saved_palettes = []
+        self.saved_palettes.append(Palette("Temporary Palette", []))
         self.palettes = self.saved_palettes
         self.selected_palette = StringVar(self.root)
         self.selected_palette.set(self.saved_palettes[0])
@@ -100,8 +101,7 @@ class MainWindow:
         self.PaletteMenuFrame = Frame(self.PaletteFrame, bg="#212024")
         self.PaletteMenuFrame.grid(row=1, column=0, columnspan=3)
 
-        self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.palettes, width=20)
-        self.PaletteMenu.set(self.palettes[0])
+        self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.get_palettes(), width=20)
         self.PaletteMenu.config(textvariable=self.selected_palette)
         self.PaletteMenu.grid(row=0, column=0, columnspan=2)
 
@@ -183,21 +183,30 @@ class MainWindow:
         else:
             self.HistoryMaster.remove_from_palette(self.ColorButton.current_color)
 
+    def get_palettes(self):
+        return [Palette.name for Palette in self.palettes]
 
     def on_palette_changed(self, event):
         print(self.selected_palette.get())
 
     def add_palette(self):
-        self.palettes.append("New Palette")
-        self.PaletteMenu.config(values=self.palettes)
+        # Differentiate pallets when creating new ones
+        list = ' '.join(self.get_palettes()).split()
+        int = list.count("New")
+        name = f'New Palette #{int}' if int > 0 else 'New Palette'
+
+        self.palettes.append(Palette(name, self.PaletteMaster.colors))
+        self.PaletteMenu.config(values=self.get_palettes())
         self.selected_palette.set(self.palettes[-1])
+        print(self.palettes[-1])
 
     def delete_palette(self):
         if self.selected_palette.get() != "Temporary Palette":
-            index = self.palettes.index(self.selected_palette.get())
-            self.palettes.remove(self.selected_palette.get())
-            self.selected_palette.set(self.saved_palettes[0] if self.saved_palettes[index-1] == None else self.saved_palettes[index-1])
-            self.PaletteMenu.config(values=self.palettes)
+            index = self.get_palettes().index(self.selected_palette.get())
+            self.selected_palette.set(self.palettes[0] if self.palettes[index-1] == None else self.palettes[index-1])
+            self.palettes.pop(index)
+            self.saved_palettes = self.palettes
+            self.PaletteMenu.config(values=self.get_palettes())
 
     def save_palette(self):
         pass
@@ -416,3 +425,6 @@ class Palette:
     def __init__(self, name: str, colors):
         self.name = name
         self.colors = colors
+
+    def __repr__(self):
+        return self.name
