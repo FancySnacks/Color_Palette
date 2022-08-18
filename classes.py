@@ -23,7 +23,8 @@ class MainWindow:
         self.saved_palettes.append(Palette("Temporary Palette", []))
         self.palettes = self.saved_palettes
         self.selected_palette = StringVar(self.root)
-        self.selected_palette.set(self.saved_palettes[0])
+        self.selected_palette.set(self.saved_palettes[0].name)
+        self.current_palette = self.saved_palettes[0]
 
         # Main Container
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
@@ -187,23 +188,46 @@ class MainWindow:
         return [Palette.name for Palette in self.palettes]
 
     def on_palette_changed(self, event):
-        print(self.selected_palette.get())
+        print("Switched to " + self.selected_palette.get())
+        self.on_palette_changed_event()
+
+    def on_palette_changed_event(self):
+        self.current_palette = None
+        # Find the currently selected palette
+        for palette in self.palettes:
+            if palette.name == self.selected_palette.get():
+                self.current_palette = palette
+        # Clear palette colors
+        self.PaletteMaster.clear_history()
+        colors = self.current_palette.colors
+        # Add colors of the currently selected palette
+        for color in colors:
+            self.PaletteMaster.add_to_palette(color)
+
 
     def add_palette(self):
+        prev = self.selected_palette.get()
         # Differentiate pallets when creating new ones
         list = ' '.join(self.get_palettes()).split()
-        int = list.count("New")
-        name = f'New Palette #{int}' if int > 0 else 'New Palette'
+        int = list.count("New") + 1
+        name = f'New Palette #{int}'
 
         self.palettes.append(Palette(name, self.PaletteMaster.colors))
         self.PaletteMenu.config(values=self.get_palettes())
-        self.selected_palette.set(self.palettes[-1])
-        print(self.palettes[-1])
+        self.selected_palette.set(self.palettes[-1].name)
+        self.current_palette = self.palettes[-1]
+
+        # Clear colors in a palette if the previous one wasn't a 'Temporary Palette'
+        # Temporary Palette is a working area that is reset upon closing the program
+        # Temporary Palette copies the palettes over to the new palett you create
+        if prev != "Temporary Palette":
+            self.PaletteMaster.clear_history()
 
     def delete_palette(self):
         if self.selected_palette.get() != "Temporary Palette":
             index = self.get_palettes().index(self.selected_palette.get())
-            self.selected_palette.set(self.palettes[0] if self.palettes[index-1] == None else self.palettes[index-1])
+            self.selected_palette.set(self.palettes[0].name if self.palettes[index-1] == None else self.palettes[index-1].name)
+            self.current_palette = self.palettes[0]if self.palettes[index-1] == None else self.palettes[index-1]
             self.palettes.pop(index)
             self.saved_palettes = self.palettes
             self.PaletteMenu.config(values=self.get_palettes())
@@ -302,6 +326,9 @@ class HistoryMaster():
             else:
                 self.current_column = 0
                 self.current_row += 1
+
+        if color not in self.window_ref.current_palette.colors:
+            self.window_ref.current_palette.colors.append(color)
 
     def remove_from_palette(self, color):
         if color in self.colors:
@@ -426,5 +453,5 @@ class Palette:
         self.name = name
         self.colors = colors
 
-    def __repr__(self):
-        return self.name
+    #def __repr__(self):
+        #return self.name
