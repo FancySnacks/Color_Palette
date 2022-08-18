@@ -86,7 +86,7 @@ class MainWindow:
         # Clear History Button
         self.ClearButtonFrame = Frame(self.HistoryFrame, bg="#212024")
         self.ClearButtonFrame.grid(row=1, column=0, sticky="NW")
-        self.ClearButton = Button(self.ClearButtonFrame, font=("Arial", 10), text="❌ Clear", fg="white", bg="#212024", command=self.HistoryMaster.clear_history)
+        self.ClearButton = Button(self.ClearButtonFrame, font=("Arial", 10), text="❌  Clear  ", fg="white", bg="#212024", command=self.HistoryMaster.clear_history)
         self.ClearButton.grid(row=0, column=0, sticky="NW")
 
         # Palette List Frame
@@ -116,21 +116,21 @@ class MainWindow:
                                      command=self.add_palette)
         self.PaletteAddButton.grid(row=0, column=0, sticky="NW")
 
+        # Palette Rename Button
+        self.PaletteRenameFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
+        self.PaletteRenameFrame.grid(row=0, column=3, sticky="NW")
+
+        self.PaletteRenameButton = Button(self.PaletteRenameFrame, font=("Lato", 10), text="✏", fg="white", bg="#212024",
+                                        command=self.save_palette)
+        self.PaletteRenameButton.grid(row=0, column=0, sticky="NW")
+
         # Palette Delete Button
         self.PaletteDelFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
-        self.PaletteDelFrame.grid(row=0, column=3, sticky="NW")
+        self.PaletteDelFrame.grid(row=0, column=4, sticky="NW")
 
         self.PaletteDelButton = Button(self.PaletteDelFrame, font=("Lato", 10), text="❌", fg="white", bg="#212024",
                                        command=self.delete_palette)
         self.PaletteDelButton.grid(row=0, column=0, sticky="NW")
-
-        # Palette Save Button
-        self.PaletteSaveFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
-        self.PaletteSaveFrame.grid(row=0, column=4, sticky="NW")
-
-        self.PaletteSaveButton = Button(self.PaletteSaveFrame, font=("Lato", 10), text="Save", fg="white", bg="#212024",
-                                       command=self.save_palette)
-        self.PaletteSaveButton.grid(row=0, column=0, sticky="NW")
 
         # Add color to palette button
         self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
