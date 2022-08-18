@@ -22,6 +22,7 @@ class MainWindow:
         self.saved_palettes = []
         self.saved_palettes.append(Palette("Temporary Palette", []))
         self.palettes = self.saved_palettes
+
         self.selected_palette = StringVar(self.root)
         self.selected_palette.set(self.saved_palettes[0].name)
         self.current_palette = self.saved_palettes[0]
