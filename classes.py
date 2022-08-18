@@ -8,7 +8,7 @@ class MainWindow:
     def __init__(self):
         # GUI creation
         self.root = Tk()
-        self.root.geometry("600x400")
+        self.root.geometry("650x425")
         self.root.resizable(height=False, width=False)
         self.root.title("Color Palette")
         self.root.config(bg="#212024")
@@ -70,7 +70,7 @@ class MainWindow:
         self.RGBCopyButton = ClipboardButton(self.root, MainWindow, self.RGBFrame, color_button.current_color[0])
 
         # Color History Frame
-        self.HistoryFrame = Frame(self.MainFrame, bg="#212024", padx=10)
+        self.HistoryFrame = Frame(self.MainFrame, bg="#212024", padx=15)
         self.HistoryFrame.grid(row=0, column=2, rowspan=2, columnspan=2, sticky="NE")
 
         self.HistoryLabel = Label(self.HistoryFrame, font=("Lato", 12), bg="#212024", text="⌛  History", fg="white", pady=5)
@@ -98,17 +98,33 @@ class MainWindow:
         self.PaletteMenuFrame = Frame(self.PaletteFrame, bg="#212024")
         self.PaletteMenuFrame.grid(row=1, column=0, columnspan=3)
 
-        self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.saved_palettes, width=25)
+        self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.saved_palettes, width=20)
         self.PaletteMenu.set(self.saved_palettes[0])
         self.PaletteMenu.grid(row=0, column=0, columnspan=2)
 
         # Palette Create Button
-        self.PaletteAddFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=8, pady=3)
+        self.PaletteAddFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=4, pady=3)
         self.PaletteAddFrame.grid(row=0, column=2, sticky="NW")
 
-        self.PaletteAddButton = Button(self.PaletteAddFrame, font=("Arial", 10), text="➕", fg="white", bg="#212024",
+        self.PaletteAddButton = Button(self.PaletteAddFrame, font=("Lato", 10), text="➕", fg="white", bg="#212024",
                                      command=self.add_color_to_palette)
         self.PaletteAddButton.grid(row=0, column=0, sticky="NW")
+
+        # Palette Delete Button
+        self.PaletteDelFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
+        self.PaletteDelFrame.grid(row=0, column=3, sticky="NW")
+
+        self.PaletteDelButton = Button(self.PaletteDelFrame, font=("Lato", 10), text="❌", fg="white", bg="#212024",
+                                       command=self.add_color_to_palette)
+        self.PaletteDelButton.grid(row=0, column=0, sticky="NW")
+
+        # Palette Save Button
+        self.PaletteSaveFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
+        self.PaletteSaveFrame.grid(row=0, column=4, sticky="NW")
+
+        self.PaletteSaveButton = Button(self.PaletteSaveFrame, font=("Lato", 10), text="Save", fg="white", bg="#212024",
+                                       command=self.add_color_to_palette)
+        self.PaletteSaveButton.grid(row=0, column=0, sticky="NW")
 
         # Add color to palette button
         self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
