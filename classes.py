@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import colorchooser
+from tkinter import ttk
 import pyperclip
 
 
@@ -17,11 +18,15 @@ class MainWindow:
         self.picked_color = None
         self.context = ""
 
+        # Palettes
+        self.saved_palettes = ["Temporary Palette"]
+        self.palettes = []
+
         # Main Container
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
         self.MainFrame.grid(row=0, column=0)
 
-        # Color picker frame
+        # Color Picker Frame
         self.ColorFrame = Frame(self.MainFrame, bg="#212024")
         self.ColorFrame.grid(row=0, column=0, rowspan=2, columnspan=2, sticky="NW")
 
@@ -64,7 +69,7 @@ class MainWindow:
 
         self.RGBCopyButton = ClipboardButton(self.root, MainWindow, self.RGBFrame, color_button.current_color[0])
 
-        # Color history frame
+        # Color History Frame
         self.HistoryFrame = Frame(self.MainFrame, bg="#212024", padx=10)
         self.HistoryFrame.grid(row=0, column=2, rowspan=2, columnspan=2, sticky="NE")
 
@@ -74,13 +79,13 @@ class MainWindow:
         self.HistoryMaster = HistoryMaster(self.root, self, self.HistoryFrame)
         self.HistoryMaster.add_to_history(self.ColorButton.current_color)
 
-        # Clear history button
+        # Clear History Button
         self.ClearButtonFrame = Frame(self.HistoryFrame, bg="#212024")
         self.ClearButtonFrame.grid(row=1, column=0, sticky="NW")
         self.ClearButton = Button(self.ClearButtonFrame, font=("Arial", 10), text="❌ Clear", fg="white", bg="#212024", command=self.HistoryMaster.clear_history)
         self.ClearButton.grid(row=0, column=0, sticky="NW")
 
-        # Palette list frame
+        # Palette List Frame
         self.PaletteFrame = Frame(self.MainFrame, bg="#212024", padx=10)
         self.PaletteFrame.grid(row=0, column=4, rowspan=2, columnspan=2, sticky="NE")
 
@@ -88,6 +93,22 @@ class MainWindow:
         self.PaletteLabel.grid(row=0, column=0, sticky="NW")
 
         self.PaletteMaster = HistoryMaster(self.root, self, self.PaletteFrame)
+
+        # Palette Dropdown Box
+        self.PaletteMenuFrame = Frame(self.PaletteFrame, bg="#212024")
+        self.PaletteMenuFrame.grid(row=1, column=0, columnspan=3)
+
+        self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.saved_palettes, width=25)
+        self.PaletteMenu.set(self.saved_palettes[0])
+        self.PaletteMenu.grid(row=0, column=0, columnspan=2)
+
+        # Palette Create Button
+        self.PaletteAddFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=8, pady=3)
+        self.PaletteAddFrame.grid(row=0, column=2, sticky="NW")
+
+        self.PaletteAddButton = Button(self.PaletteAddFrame, font=("Arial", 10), text="➕", fg="white", bg="#212024",
+                                     command=self.add_color_to_palette)
+        self.PaletteAddButton.grid(row=0, column=0, sticky="NW")
 
         # Add color to palette button
         self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
