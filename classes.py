@@ -21,6 +21,8 @@ class MainWindow:
         # Palettes
         self.saved_palettes = ["Temporary Palette"]
         self.palettes = []
+        self.selected_palette = StringVar(self.root)
+        self.selected_palette.set(self.saved_palettes[0])
 
         # Main Container
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
@@ -100,14 +102,17 @@ class MainWindow:
 
         self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.saved_palettes, width=20)
         self.PaletteMenu.set(self.saved_palettes[0])
+        self.PaletteMenu.config(textvariable=self.selected_palette)
         self.PaletteMenu.grid(row=0, column=0, columnspan=2)
+
+        self.PaletteMenu.bind("<<ComboboxSelected>>", self.on_palette_changed)
 
         # Palette Create Button
         self.PaletteAddFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=4, pady=3)
         self.PaletteAddFrame.grid(row=0, column=2, sticky="NW")
 
         self.PaletteAddButton = Button(self.PaletteAddFrame, font=("Lato", 10), text="➕", fg="white", bg="#212024",
-                                     command=self.add_color_to_palette)
+                                     command=self.add_palette)
         self.PaletteAddButton.grid(row=0, column=0, sticky="NW")
 
         # Palette Delete Button
@@ -115,7 +120,7 @@ class MainWindow:
         self.PaletteDelFrame.grid(row=0, column=3, sticky="NW")
 
         self.PaletteDelButton = Button(self.PaletteDelFrame, font=("Lato", 10), text="❌", fg="white", bg="#212024",
-                                       command=self.add_color_to_palette)
+                                       command=self.delete_palette)
         self.PaletteDelButton.grid(row=0, column=0, sticky="NW")
 
         # Palette Save Button
@@ -123,7 +128,7 @@ class MainWindow:
         self.PaletteSaveFrame.grid(row=0, column=4, sticky="NW")
 
         self.PaletteSaveButton = Button(self.PaletteSaveFrame, font=("Lato", 10), text="Save", fg="white", bg="#212024",
-                                       command=self.add_color_to_palette)
+                                       command=self.save_palette)
         self.PaletteSaveButton.grid(row=0, column=0, sticky="NW")
 
         # Add color to palette button
@@ -177,6 +182,19 @@ class MainWindow:
             self.PaletteMaster.remove_from_palette(self.ColorButton.current_color)
         else:
             self.HistoryMaster.remove_from_palette(self.ColorButton.current_color)
+
+
+    def on_palette_changed(self, event):
+        print(self.selected_palette.get())
+
+    def add_palette(self):
+        self.palettes.append("New Palette")
+
+    def delete_palette(self):
+        pass
+
+    def save_palette(self):
+        pass
 
 
 
@@ -384,3 +402,11 @@ class History_ColorButton():
     def remove_self(self):
         self.MainFrame.destroy()
         del self
+
+
+
+# Saved palette
+class Palette:
+    def __init__(self, name: str, colors):
+        self.name = name
+        self.colors = colors
