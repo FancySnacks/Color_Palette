@@ -90,10 +90,14 @@ class MainWindow:
         self.PaletteMaster = HistoryMaster(self.root, self, self.PaletteFrame)
 
         # Add color to palette button
-        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=5)
+        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
         self.AddColorFrame.grid(row=2, column=0, sticky="NW")
-        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add to Palette", fg="white", bg="#212024", command=self.add_color_to_palette)
+        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add ", fg="white", bg="#212024", command=self.add_color_to_palette)
         self.AddColorButton.grid(row=0, column=0, sticky="NW")
+
+        self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove ", fg="white",
+                                     bg="#212024", command=self.remove_color_from_palette)
+        self.DelColorButton.grid(row=0, column=1, sticky="NW")
 
 
         # Display main window
@@ -121,6 +125,9 @@ class MainWindow:
 
     def add_color_to_palette(self):
         self.PaletteMaster.add_to_palette(self.ColorButton.current_color)
+
+    def remove_color_from_palette(self):
+        self.PaletteMaster.remove_from_palette(self.ColorButton.current_color)
 
 
 
@@ -152,7 +159,7 @@ class HistoryMaster():
                 self.remove_color(0)
                 self.reset()
             self.colors.append(color)
-            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row)
+            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, False)
             self.color_buttons.append(new_color)
 
             if self.current_column == 0:
@@ -162,7 +169,6 @@ class HistoryMaster():
                 self.current_row += 1
 
     def remove_color(self, index):
-        print(index)
         self.colors.pop(index)
         self.color_buttons.pop(index)
         self.update_indexes()
@@ -175,22 +181,22 @@ class HistoryMaster():
         return len(self.colors) > 11
 
     def reset(self):
+        self.update_indexes()
         self.current_row = 0
         self.current_column = 0
         for elem in self.color_buttons:
             elem.remove_self()
         self.color_buttons = []
         for color in self.colors:
-            self.color_buttons.append(History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row))
+            self.color_buttons.append(History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, False))
             if self.current_column == 0:
                 self.current_column = 1
             else:
                 self.current_column = 0
                 self.current_row += 1
-        self.update_indexes()
 
     def clear_history(self):
-        self.colors =[]
+        self.colors = []
         for elem in self.color_buttons:
             elem.remove_self()
         for child in self.List1.winfo_children():
@@ -200,17 +206,36 @@ class HistoryMaster():
         self.current_row = 0
 
     def add_to_palette(self, color):
-        self.colors.append(color)
-        new_color = Palette_Color_Button(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row)
-        self.color_buttons.append(new_color)
+        if color not in self.colors:
+            self.colors.append(color)
+            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, True)
+            self.color_buttons.append(new_color)
 
-        if self.current_column == 0:
-            self.current_column = 1
-        elif self.current_column == 1:
-            self.current_column = 2
-        else:
-            self.current_column = 0
-            self.current_row += 1
+            if self.current_column == 0:
+                self.current_column = 1
+            elif self.current_column == 1:
+                self.current_column = 2
+            else:
+                self.current_column = 0
+                self.current_row += 1
+
+    def remove_from_palette(self, color):
+        if color in self.colors:
+            index = self.colors.index(color)
+            self.List1.winfo_children()[index].destroy()
+            self.remove_color(index)
+
+            if self.current_column == 0:
+                self.current_column = 1
+            elif self.current_column == 1:
+                self.current_column = 2
+            else:
+                self.current_column = 0
+                self.current_row += 1
+
+        #else:
+            #print("fail")
+
 
 
 
@@ -269,20 +294,22 @@ class ColorButton():
 
 
 class History_ColorButton():
-    def __init__(self, root, window_ref, parent_widget, color, index, column, row):
+    def __init__(self, root, window_ref, parent_widget, color, index, column, row, b_palette):
         self.window_root = root
         self.window_ref = window_ref
         self.parent_widget = parent_widget
         self.index = index
         self.column = column
         self.row = row
+        self.b_palette = b_palette
 
         self.color = color
+        self.ColorName = StringVar(self.window_root)
+        self.ColorName.set("Name")
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2)
         self.MainFrame.grid(row=row, column=column)
 
-        print(self.color)
         self.ColorButton = Button(self.MainFrame, height=1, width=8, bg=self.color[1], highlightbackground = "black", highlightthickness = 2, bd=0, command=self.change_main_color)
         self.ColorButton.grid(row=0, column=0)
 
@@ -290,6 +317,15 @@ class History_ColorButton():
         self.HEXEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
         self.HEXEntry.insert(END, self.color[1])
         self.HEXEntry.grid(row=1, column=0)
+
+        if b_palette:
+            self.NameEntry = Entry(self.MainFrame, textvariable=self.ColorName, bg="#212024", fg="#aba7a7", width=10,
+                                   highlightthickness=0)
+            self.NameEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
+            self.NameEntry.grid(row=0, column=0)
+
+            self.ColorButton.grid(row=1)
+            self.HEXEntry.grid(row=2)
 
 
     # Functions
@@ -300,35 +336,3 @@ class History_ColorButton():
     def remove_self(self):
         self.MainFrame.destroy()
         del self
-
-
-
-class Palette_Color_Button(History_ColorButton):
-    def __init__(self, root, window_ref, parent_widget, color, index, column, row):
-        super().__init__(root, window_ref, parent_widget, color, index, column, row)
-
-        self.ColorName = "Name"
-
-
-        self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2)
-        self.MainFrame.grid(row=row, column=column)
-
-        self.NameEntry = Entry(self.MainFrame, bg="#212024", fg="#aba7a7", width=10, highlightthickness=0)
-        self.NameEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
-        self.NameEntry.insert(END, self.ColorName)
-        self.NameEntry.grid(row=0, column=0)
-
-        self.ColorButton = Button(self.MainFrame, height=1, width=8, bg=self.color[1], highlightbackground="black",
-                                  highlightthickness=2, bd=0, command=self.change_main_color)
-        self.ColorButton.grid(row=1, column=0)
-
-        self.HEXEntry = Entry(self.MainFrame, bg="#212024", fg="#aba7a7", width=10, highlightthickness=0)
-        self.HEXEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
-        self.HEXEntry.insert(END, self.color[1])
-        self.HEXEntry.grid(row=2, column=0)
-
-
-    # Functions
-
-    def change_main_color(self):
-        self.window_ref.ColorButton.update_color(self.color)
