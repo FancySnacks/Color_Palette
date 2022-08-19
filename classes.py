@@ -142,7 +142,7 @@ class MainWindow:
                                      bg="#212024", command=self.remove_color)
         self.DelColorButton.grid(row=0, column=1, sticky="NW")
 
-        self.PaletteRenameButton.config(state=DISABLED)
+        self.toggle_button_state()
 
         # Display main window
         self.root.mainloop()
@@ -205,14 +205,16 @@ class MainWindow:
         if colors:
             for color in colors:
                 self.PaletteMaster.add_to_palette(color)
-        self.toggle_renamebutton_state()
+        self.toggle_button_state()
 
     # Disable rename button for the Temporary Palette
-    def toggle_renamebutton_state(self):
+    def toggle_button_state(self):
         if self.current_palette == self.palettes[0]:
             self.PaletteRenameButton.config(state=DISABLED)
+            self.PaletteDelButton.config(state=DISABLED)
         else:
             self.PaletteRenameButton.config(state=NORMAL)
+            self.PaletteDelButton.config(state=NORMAL)
 
 
     def add_palette(self):
@@ -227,7 +229,7 @@ class MainWindow:
         self.selected_palette.set(self.palettes[-1].name)
         self.current_palette = self.palettes[-1]
 
-        self.toggle_renamebutton_state()
+        self.toggle_button_state()
 
         # Clear colors in a palette if the previous one wasn't a 'Temporary Palette'
         # Temporary Palette is a working area that is reset upon closing the program
@@ -243,7 +245,8 @@ class MainWindow:
             self.palettes.pop(index)
             self.saved_palettes = self.palettes
             self.PaletteMenu.config(values=self.get_palettes())
-            self.toggle_renamebutton_state()
+            self.on_palette_changed_event()
+            self.toggle_button_state()
 
     def save_palette(self):
         pass
