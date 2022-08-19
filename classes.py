@@ -500,6 +500,9 @@ class RenameMenu:
         self.ButtonFrame = Frame(self.root, bg="#212024", pady=5)
         self.ButtonFrame.pack()
 
+        self.ErrorLabel = Label(self.MainFrame, text="", pady=7, font=("Lato", 9), bg="#212024", fg="red")
+        self.ErrorLabel.pack()
+
         self.ConfirmButtom = Button(self.ButtonFrame, bg="#212024", font=("Lato", 11), text="Confirm", fg="white", command=self.rename_palette)
         self.ConfirmButtom.pack()
 
@@ -507,8 +510,13 @@ class RenameMenu:
     # Functions
 
     def rename_palette(self):
-        self.window_ref.current_palette.name = self.entry_input.get()
-        self.window_ref.PaletteMenu.config(values=self.window_ref.get_palettes())
-        self.window_ref.selected_palette.set(self.window_ref.current_palette.name)
-        self.root.destroy()
-        del self
+        if self.entry_input.get() in self.window_ref.get_palettes() and self.entry_input.get() != self.window_ref.current_palette.name:
+            self.ErrorLabel.config(text="Palette with this name already exists")
+        else:
+            self.ErrorLabel.config(text="")
+            self.window_ref.current_palette.name = self.entry_input.get()
+            self.window_ref.PaletteMenu.config(values=self.window_ref.get_palettes())
+            self.window_ref.selected_palette.set(self.window_ref.current_palette.name)
+
+            self.root.destroy()
+            del self
