@@ -121,8 +121,7 @@ class MainWindow:
         self.PaletteRenameFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
         self.PaletteRenameFrame.grid(row=0, column=3, sticky="NW")
 
-        self.PaletteRenameButton = Button(self.PaletteRenameFrame, font=("Lato", 10), text="✏", fg="white", bg="#212024",
-                                        command=self.save_palette)
+        self.PaletteRenameButton = Button(self.PaletteRenameFrame, font=("Lato", 10), text="✏", fg="white", bg="#212024", command=self.show_rename_menu)
         self.PaletteRenameButton.grid(row=0, column=0, sticky="NW")
 
         # Palette Delete Button
@@ -143,6 +142,7 @@ class MainWindow:
                                      bg="#212024", command=self.remove_color)
         self.DelColorButton.grid(row=0, column=1, sticky="NW")
 
+        self.PaletteRenameButton.config(state=DISABLED)
 
         # Display main window
         self.root.mainloop()
@@ -200,10 +200,19 @@ class MainWindow:
                 self.current_palette = palette
         # Clear palette colors
         self.PaletteMaster.clear_history()
-        colors = self.current_palette.colors
+        colors = self.current_palette.colors if self.current_palette else None
         # Add colors of the currently selected palette
-        for color in colors:
-            self.PaletteMaster.add_to_palette(color)
+        if colors:
+            for color in colors:
+                self.PaletteMaster.add_to_palette(color)
+        self.toggle_renamebutton_state()
+
+    # Disable rename button for the Temporary Palette
+    def toggle_renamebutton_state(self):
+        if self.current_palette == self.palettes[0]:
+            self.PaletteRenameButton.config(state=DISABLED)
+        else:
+            self.PaletteRenameButton.config(state=NORMAL)
 
 
     def add_palette(self):
@@ -217,6 +226,8 @@ class MainWindow:
         self.PaletteMenu.config(values=self.get_palettes())
         self.selected_palette.set(self.palettes[-1].name)
         self.current_palette = self.palettes[-1]
+
+        self.toggle_renamebutton_state()
 
         # Clear colors in a palette if the previous one wasn't a 'Temporary Palette'
         # Temporary Palette is a working area that is reset upon closing the program
@@ -232,9 +243,13 @@ class MainWindow:
             self.palettes.pop(index)
             self.saved_palettes = self.palettes
             self.PaletteMenu.config(values=self.get_palettes())
+            self.toggle_renamebutton_state()
 
     def save_palette(self):
         pass
+
+    def show_rename_menu(self):
+        Menu = RenameMenu(self.root, self, self.current_palette.name)
 
 
 
@@ -454,5 +469,46 @@ class Palette:
         self.name = name
         self.colors = colors
 
-    #def __repr__(self):
-        #return self.name
+
+
+# Rename Palette Widget
+class RenameMenu:
+    def __init__(self, root, window_ref, name):
+        self.window_root = root
+        self.window_ref = window_ref
+        self.name = name
+
+        # Create widgets
+        self.root = Tk()
+        self.root.geometry("250x125")
+        self.root.resizable(height=False, width=False)
+        self.root.title("Rename Palette")
+        self.root.config(bg="#212024")
+
+        self.entry_input = StringVar(self.root)
+        self.entry_input.set(self.name)
+
+        self.MainFrame = Frame(self.root, padx=15, bg="#212024")
+        self.MainFrame.pack(fill=BOTH, expand=1)
+
+        self.RenameLabel = Label(self.MainFrame, text="Rename Palette:", pady=7, font=("Lato", 11), bg="#212024", fg="white")
+        self.RenameLabel.pack(fill=BOTH)
+
+        self.RenameEntry = Entry(self.MainFrame, width=30, font=("Lato", 12), textvariable=self.entry_input)
+        self.RenameEntry.pack()
+
+        self.ButtonFrame = Frame(self.root, bg="#212024", pady=5)
+        self.ButtonFrame.pack()
+
+        self.ConfirmButtom = Button(self.ButtonFrame, bg="#212024", font=("Lato", 11), text="Confirm", fg="white", command=self.rename_palette)
+        self.ConfirmButtom.pack()
+
+
+    # Functions
+
+    def rename_palette(self):
+        self.window_ref.current_palette.name = self.entry_input.get()
+        self.window_ref.PaletteMenu.config(values=self.window_ref.get_palettes())
+        self.window_ref.selected_palette.set(self.window_ref.current_palette.name)
+        self.root.destroy()
+        del self
