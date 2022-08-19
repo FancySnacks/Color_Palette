@@ -1,5 +1,7 @@
 # Color_Palette  
   
+[!image](https://i.imgur.com/wzgRGBx.jpg)
+  
 # About  
   
 ## Goal  
