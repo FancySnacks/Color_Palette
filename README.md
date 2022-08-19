@@ -15,7 +15,7 @@ I can say that this project increased my GUI skills. I've aimed to make the UI l
   
 Another valuable experience was working with save files, I never tried anything related to saving informatiom between sessions so I had to think it out properly. I had a lot of different ideas but in the end I've sticked to the classic .txt file extension that simply contained Python lists ready to be imported into the program. A upside of this crude mechanic is that users can edit palettes manually inside the .txt file, this makes a lot of things easier and more comfortable for users.  
   
-**TO-DO:  **  
+TO-DO:    
 [ ] Add option for the app to always stay on top of other programs  
 [ ] Save color palettes to a file  
 [ ] Generate color shades when picking a color  
