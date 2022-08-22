@@ -143,6 +143,7 @@ class MainWindow:
         self.DelColorButton.grid(row=0, column=1, sticky="NW")
 
         self.toggle_button_state()
+        self.update_context("history")
 
         # Display main window
         self.root.mainloop()
@@ -178,12 +179,13 @@ class MainWindow:
 
     def add_color_to_palette(self):
         self.PaletteMaster.add_to_palette(self.ColorButton.current_color)
+        self.update_context("palette")
 
     def remove_color(self):
         if self.context == "palette":
             self.PaletteMaster.remove_from_palette(self.ColorButton.current_color)
         else:
-            self.HistoryMaster.remove_from_palette(self.ColorButton.current_color)
+            self.HistoryMaster.remove_from_history(self.ColorButton.current_color)
 
     def get_palettes(self):
         return [Palette.name for Palette in self.palettes]
@@ -307,15 +309,18 @@ class HistoryMaster():
     def is_history_full(self):
         return len(self.colors) > 11
 
-    def reset(self):
+    def reset(self, b_palette):
         self.update_indexes()
         self.current_row = 0
         self.current_column = 0
-        for elem in self.color_buttons:
-            elem.remove_self()
+        for child in self.List1.winfo_children():
+            child.destroy()
         self.color_buttons = []
         for color in self.colors:
-            self.color_buttons.append(History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, False))
+            new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, b_palette)
+            if b_palette:
+                new_button.context = "palette"
+            self.color_buttons.append(new_button)
             if self.current_column == 0:
                 self.current_column = 1
             else:
@@ -336,6 +341,8 @@ class HistoryMaster():
         if color not in self.colors:
             self.colors.append(color)
             new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, True)
+            new_color.context = "palette"
+            self.window_ref.update_context("palette")
             self.color_buttons.append(new_color)
 
             if self.current_column == 0:
@@ -354,15 +361,43 @@ class HistoryMaster():
             index = self.colors.index(color)
             self.List1.winfo_children()[index].destroy()
             self.remove_color(index)
+            self.update_indexes()
 
-            if self.current_column == 0:
-                self.current_column = 1
-            elif self.current_column == 1:
-                self.current_column = 2
-            else:
-                self.current_column = 0
-                self.current_row += 1
+            self.current_row = 0
+            self.current_column = 0
+            for child in self.List1.winfo_children():
+                child.destroy()
+            self.color_buttons = []
+            for color in self.colors:
+                new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, color,
+                                                 len(self.color_buttons), self.current_column, self.current_row,
+                                                 True)
+                new_button.context = "palette"
+                self.color_buttons.append(new_button)
+                if self.current_column == 0:
+                    self.current_column = 1
+                elif self.current_column == 1:
+                    self.current_column = 2
+                else:
+                    self.current_column = 0
+                    self.current_row += 1
 
+            try:
+                self.window_ref.update_color_values(self.colors[0][1], self.colors[0][0], "palette")
+            except:
+                self.window_ref.update_color_values("#c72231", "199, 34, 49", "palette")
+
+    def remove_from_history(self, color):
+        if color in self.colors:
+            index = self.colors.index(color)
+            self.List1.winfo_children()[index].destroy()
+            self.remove_color(index)
+            self.reset(False)
+
+            try:
+                self.window_ref.update_color_values(self.colors[0][1], self.colors[0][0], "history")
+            except:
+                self.window_ref.update_color_values("#c72231", "199, 34, 49", "history")
 
 
 
@@ -392,6 +427,7 @@ class ColorButton():
         self.parent_widget = parent_widget
         self.height = height
         self.width = width
+        self.context = "history"
 
         self.DEFAULT_COLOR = "#c72231"
         self.current_color = ("199, 34, 49", self.DEFAULT_COLOR)
@@ -406,6 +442,7 @@ class ColorButton():
     # Functions
 
     def pick_color(self):
+        self.window_ref.update_context(self.context)
         color = colorchooser.askcolor(title="Pick a color")
         if color != (None, None):
             self.update_color(color, "")
@@ -429,6 +466,7 @@ class History_ColorButton():
         self.column = column
         self.row = row
         self.b_palette = b_palette
+        self.context = "palette"
 
         self.color = color
         self.ColorName = StringVar(self.window_root)
