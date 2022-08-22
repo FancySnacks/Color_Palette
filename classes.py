@@ -382,10 +382,7 @@ class HistoryMaster():
                     self.current_column = 0
                     self.current_row += 1
 
-            try:
-                self.window_ref.update_color_values(self.colors[0][1], self.colors[0][0], "palette")
-            except:
-                self.window_ref.update_color_values("#c72231", "199, 34, 49", "palette")
+            self.set_default("palette")
 
     def remove_from_history(self, color):
         if color in self.colors:
@@ -393,12 +390,21 @@ class HistoryMaster():
             self.List1.winfo_children()[index].destroy()
             self.remove_color(index)
             self.reset(False)
+            self.set_default("history")
 
-            try:
-                self.window_ref.update_color_values(self.colors[0][1], self.colors[0][0], "history")
-            except:
-                self.window_ref.update_color_values("#c72231", "199, 34, 49", "history")
-
+    def set_default(self, context):
+        try:
+            self.window_ref.update_color_values(self.colors[0][1], self.colors[0][0], context)
+            self.window_ref.picked_color = (self.colors[0][1], self.colors[0][0])
+            self.window_ref.ColorButton.ColorButton.config(bg=str(self.colors[0][1]))
+            self.window_ref.ColorButton.current_color = (self.colors[0][0], self.colors[0][1])
+        except:
+            self.window_ref.update_color_values("#c72231", "199, 34, 49", context)
+            self.window_ref.picked_color = ("#c72231", "199, 34, 49")
+            self.window_ref.ColorButton.ColorButton.config(bg="#c72231")
+            self.window_ref.ColorButton.current_color = ("#c72231", "199, 34, 49")
+            if context != "history":
+                self.window_ref.update_context("history")
 
 
 class ClipboardButton():
