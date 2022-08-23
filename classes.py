@@ -73,7 +73,7 @@ class MainWindow:
         self.SaveFrame.grid(row=1, column=9, sticky="E")
 
         self.SaveButton = Button(self.SaveFrame, font=("Lato", 10), text="Save Palettes ", fg="white",
-                                   bg="#212024")
+                                   bg="#212024", command=self.save_palette)
         self.SaveButton.grid(row=0, column=0, sticky="E")
 
         # Color Picker Frame
@@ -298,7 +298,31 @@ class MainWindow:
             self.toggle_button_state()
 
     def save_palette(self):
-        pass
+        results = []
+        if self.does_save_file_exist():
+            self.palette_to_text("w")
+        else:
+            self.palette_to_text("x")
+
+    def palette_to_text(self, mode):
+        results = ""
+        file = open("palettes.txt", mode)
+        for palette in self.palettes:
+            results += str(([palette.name, palette.colors])) + "\n"
+        file.write(str(results))
+        file.close()
+
+    def does_save_file_exist(self):
+        file = None
+        try:
+            file = open("palettes.txt", "r")
+            print("Found save file")
+            file.close()
+            return True
+        except:
+            print("Save file doesn't exist")
+            file.close() if file else None
+            return False
 
     def show_rename_menu(self):
         Menu = RenameMenu(self.root, self, self.current_palette.name)
@@ -493,6 +517,9 @@ class ColorButton():
         self.height = height
         self.width = width
         self.context = "history"
+
+        self.ColorName = StringVar(self.window_root)
+        self.ColorName.set("Name")
 
         self.DEFAULT_COLOR = "#c72231"
         self.current_color = ("199, 34, 49", self.DEFAULT_COLOR)
