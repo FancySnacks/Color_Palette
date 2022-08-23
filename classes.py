@@ -8,7 +8,7 @@ class MainWindow:
     def __init__(self):
         # GUI creation
         self.root = Tk()
-        self.root.geometry("650x425")
+        self.root.geometry("670x425")
         self.root.resizable(height=False, width=False)
         self.root.title("Color Palette")
         self.root.config(bg="#212024")
@@ -17,6 +17,7 @@ class MainWindow:
         self.ColorButton = None
         self.picked_color = None
         self.context = ""
+        self.on_top = False
 
         # Palettes
         self.saved_palettes = []
@@ -29,7 +30,21 @@ class MainWindow:
 
         # Main Container
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
-        self.MainFrame.grid(row=0, column=0)
+        self.MainFrame.pack(expand=True, fill=Y)
+
+        # Toolbar at the bottom
+        self.ToolbarFrame = Frame(self.root, bg="#212024", padx=10)
+        self.ToolbarFrame.pack(expand=True, fill=X, anchor="s")
+
+        self.ToolbarDivider = Frame(self.ToolbarFrame, bg="white", width=650, pady=3)
+        self.ToolbarDivider.grid(row=0, columnspan=5)
+
+        # Stay-On-Top Button
+        self.StayOnTopFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.StayOnTopFrame.grid(row=1, column=0, sticky="W")
+
+        self.StayOnTopButton = Button(self.StayOnTopFrame, font=("Lato", 9), text="⬜ Unlocked", fg="white", bg="#212024", command=self.stay_on_top)
+        self.StayOnTopButton.grid(row=0, column=0, sticky="W")
 
         # Color Picker Frame
         self.ColorFrame = Frame(self.MainFrame, bg="#212024")
@@ -74,6 +89,17 @@ class MainWindow:
 
         self.RGBCopyButton = ClipboardButton(self.root, MainWindow, self.RGBFrame, color_button.current_color[0])
 
+        # Add color to palette button
+        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
+        self.AddColorFrame.grid(row=2, column=0, sticky="NW")
+        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add ", fg="white", bg="#212024",
+                                     command=self.add_color_to_palette)
+        self.AddColorButton.grid(row=0, column=0, sticky="NW")
+
+        # Remove color from palette button
+        self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove (🎨)", fg="white", bg="#212024", command=self.remove_color)
+        self.DelColorButton.grid(row=0, column=1, sticky="NW")
+
         # Color History Frame
         self.HistoryFrame = Frame(self.MainFrame, bg="#212024", padx=15)
         self.HistoryFrame.grid(row=0, column=2, rowspan=2, columnspan=2, sticky="NE")
@@ -99,10 +125,11 @@ class MainWindow:
 
         self.PaletteMaster = HistoryMaster(self.root, self, self.PaletteFrame)
 
-        # Palette Dropdown Box
+        # Palette Tools Frame
         self.PaletteMenuFrame = Frame(self.PaletteFrame, bg="#212024")
         self.PaletteMenuFrame.grid(row=1, column=0, columnspan=3)
 
+        # Palette dropdown box
         self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.get_palettes(), width=20)
         self.PaletteMenu.config(textvariable=self.selected_palette)
         self.PaletteMenu.grid(row=0, column=0, columnspan=2)
@@ -132,20 +159,10 @@ class MainWindow:
                                        command=self.delete_palette)
         self.PaletteDelButton.grid(row=0, column=0, sticky="NW")
 
-        # Add color to palette button
-        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
-        self.AddColorFrame.grid(row=2, column=0, sticky="NW")
-        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add ", fg="white", bg="#212024", command=self.add_color_to_palette)
-        self.AddColorButton.grid(row=0, column=0, sticky="NW")
-
-        self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove (🎨)", fg="white",
-                                     bg="#212024", command=self.remove_color)
-        self.DelColorButton.grid(row=0, column=1, sticky="NW")
-
-        self.toggle_button_state()
-        self.update_context("history")
 
         # Display main window
+        self.toggle_button_state()
+        self.update_context("history")
         self.root.mainloop()
 
 
@@ -256,6 +273,17 @@ class MainWindow:
     def show_rename_menu(self):
         Menu = RenameMenu(self.root, self, self.current_palette.name)
 
+    # Set the GUI to stay on top of other programs (or not)
+    def stay_on_top(self):
+        if self.on_top:
+            self.on_top = False
+            self.root.attributes('-topmost', False)
+            self.StayOnTopButton.config(text="⬜ Unlocked")
+        else:
+            self.on_top = True
+            self.root.attributes('-topmost', True)
+            self.StayOnTopButton.config(text="⬛ Locked")
+
 
 
 # Stores colors
@@ -274,6 +302,7 @@ class HistoryMaster():
 
         self.List1 = Frame(self.MainFrame, bg="#212024")
         self.List1.grid(row=0, column=0, sticky="NS")
+        self.List1.grid_columnconfigure(1, minsize=70)
 
         self.current_column = 0
         self.current_row = 0
@@ -439,10 +468,10 @@ class ColorButton():
         self.current_color = ("199, 34, 49", self.DEFAULT_COLOR)
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5)
-        self.MainFrame.grid()
+        self.MainFrame.grid(sticky="W")
 
         self.ColorButton = Button(self.MainFrame, height=self.height, width=self.width, bg=self.current_color[1], highlightbackground = "black", highlightthickness = 2, bd=0, command=self.pick_color)
-        self.ColorButton.grid(row=0, column=0)
+        self.ColorButton.grid(row=0, column=0, sticky="W")
 
 
     # Functions
