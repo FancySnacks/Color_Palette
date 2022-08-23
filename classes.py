@@ -308,8 +308,10 @@ class MainWindow:
     def palette_to_text(self, mode):
         results = ""
         file = open("palettes.txt", mode)
-        for palette in self.palettes:
-            results += str(([palette.name, palette.colors])) + "\n"
+        if len(self.palettes) > 1:
+            for palette in self.palettes:
+                if palette.name != "Temporary Palette":
+                    results += str(([palette.name, palette.colors])) + "\n"
         file.write(str(results))
         file.close()
 
