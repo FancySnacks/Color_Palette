@@ -37,7 +37,7 @@ class MainWindow:
         self.ToolbarFrame.pack(expand=True, fill=X, anchor="s")
 
         self.ToolbarDivider = Frame(self.ToolbarFrame, bg="white", width=650, pady=3)
-        self.ToolbarDivider.grid(row=0, columnspan=5)
+        self.ToolbarDivider.grid(row=0, columnspan=10)
 
         # Stay-On-Top Button
         self.StayOnTopFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
@@ -45,6 +45,36 @@ class MainWindow:
 
         self.StayOnTopButton = Button(self.StayOnTopFrame, font=("Lato", 9), text="⬜ Unlocked", fg="white", bg="#212024", command=self.stay_on_top)
         self.StayOnTopButton.grid(row=0, column=0, sticky="W")
+
+        # Eyedropper Tool
+        self.EyedropperFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.EyedropperFrame.grid(row=1, column=1, sticky="W")
+
+        self.EyedropperButton = Button(self.EyedropperFrame, font=("Lato", 9), text="🖊 Sample Color", fg="white", bg="#212024")
+        self.EyedropperButton.grid(row=0, column=0, sticky="W")
+
+        # Import Palette Button
+        self.ImportFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.ImportFrame.grid(row=1, column=7, sticky="E")
+
+        self.ImportButton = Button(self.ImportFrame, font=("Lato", 10), text="⬇ Import ", fg="white", bg="#212024")
+        self.ImportButton.grid(row=0, column=0, sticky="E")
+
+        # Export Palette Button
+        self.ExportFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.ExportFrame .grid(row=1, column=8, sticky="E")
+
+        self.ExportButton = Button(self.ExportFrame, font=("Lato", 10), text="⬆ Export ", fg="white",
+                                       bg="#212024")
+        self.ExportButton.grid(row=0, column=0, sticky="E")
+
+        # Save Palette Button
+        self.SaveFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.SaveFrame.grid(row=1, column=9, sticky="E")
+
+        self.SaveButton = Button(self.SaveFrame, font=("Lato", 10), text="Save Palettes ", fg="white",
+                                   bg="#212024")
+        self.SaveButton.grid(row=0, column=0, sticky="E")
 
         # Color Picker Frame
         self.ColorFrame = Frame(self.MainFrame, bg="#212024")
