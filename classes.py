@@ -304,6 +304,7 @@ class MainWindow:
         else:
             self.palette_to_text("x")
 
+    # Save palettes into a text file
     def palette_to_text(self, mode):
         results = ""
         file = open("palettes.txt", mode)
