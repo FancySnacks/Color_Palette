@@ -11,13 +11,16 @@ And so this app comes into play. It allows you to pick color and get the HEX or 
 This program also allows you for quick export of the saved color palettes as .jpegs, which then you can load into editor and copy colors from. You can also generate color palette from a image, like drawing or photo or simply another color palette. If you see a color/shade you like, you can also copy it via eyedropper tool, from any website or app or image and add it to the palette or get it's HEX value.  
   
 ## Features  
-### HEX / RGB Color picker  
-### Create color palettes that can be saved between sessions  
-### Export and import color palettes  
-### Create color palette from an image  
-### Window can stay on top of other programs
+* HEX / RGB Color picker  
+* Create color palettes that can be saved between sessions  
+* Export and import color palettes  
+* Create color palette from an image  
+* Window can stay on top of other programs
+
+## Tech  
+Python, Tkinter, Pyperclip  
   
-TO-DO:    
+## TO-DO List    
 [ ] Show color shades when of a selected color    
 [ ] Generate color palette from uploaded image  
 [ ] Copy color from any website, app or image via eyedropper tool  
@@ -29,5 +32,6 @@ TO-DO:
   
 # License  
 GNU GENERAL PUBLIC LICENSE  
+**More info can be found in LICENSE.MD file**
   
 Made by Adrian Urbaniak, 2022
