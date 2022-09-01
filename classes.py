@@ -4,6 +4,8 @@ from tkinter import ttk
 import pyperclip
 
 
+
+# Main GUI window
 class MainWindow:
     def __init__(self):
         # GUI creation
@@ -193,6 +195,7 @@ class MainWindow:
         # Display main window
         self.toggle_button_state()
         self.update_context("history")
+        self.load_palettes_from_file()
         self.root.mainloop()
 
 
@@ -268,12 +271,13 @@ class MainWindow:
 
     def add_palette(self):
         prev = self.selected_palette.get()
-        # Differentiate pallets when creating new ones
-        list = ' '.join(self.get_palettes()).split()
+        list = ' '.join(self.get_palettes()).split()   # Differentiate pallets when creating new ones
         int = list.count("New") + 1
         name = f'New Palette #{int}'
 
-        self.palettes.append(Palette(name, self.PaletteMaster.colors))
+        new_palette = Palette(name, self.PaletteMaster.colors)
+
+        self.palettes.append(new_palette)
         self.PaletteMenu.config(values=self.get_palettes())
         self.selected_palette.set(self.palettes[-1].name)
         self.current_palette = self.palettes[-1]
@@ -285,6 +289,8 @@ class MainWindow:
         # Temporary Palette copies the palettes over to the new palett you create
         if prev != "Temporary Palette":
             self.PaletteMaster.clear_history()
+
+        return new_palette
 
     def delete_palette(self):
         if self.selected_palette.get() != "Temporary Palette":
@@ -298,7 +304,6 @@ class MainWindow:
             self.toggle_button_state()
 
     def save_palette(self):
-        results = []
         if self.does_save_file_exist():
             self.palette_to_text("w")
         else:
@@ -316,17 +321,34 @@ class MainWindow:
         file.close()
 
     def does_save_file_exist(self):
-        file = None
         try:
-            file = open("palettes.txt", "r")
-            print("Found save file")
-            file.close()
-            return True
+            with open("palettes.txt", "r") as f:
+                print("Found save file")
+                return True
         except:
             print("Save file doesn't exist")
-            file.close() if file else None
             return False
 
+    # Load saved palettes from a save file on program launch
+    def load_palettes_from_file(self):
+        if self.does_save_file_exist():
+            import ast # this import is only needed when this function executes
+            file = open("palettes.txt", "r")
+
+            for line in file.readlines(): # read lines from text file, each palette is a separate line
+                palette_info = ast.literal_eval(line) # convert string representation of a list into actual list of colors
+                new_palette = self.add_palette()
+                self.palettes[-1].name = palette_info[0]
+                self.palettes[-1].colors = palette_info[1]
+                self.PaletteMenu.config(values=self.get_palettes())
+
+            self.selected_palette.set(self.palettes[0].name)
+            self.on_palette_changed_event()
+            print(self.get_palettes())
+        else:
+            pass
+
+    # Display palette rename menu
     def show_rename_menu(self):
         Menu = RenameMenu(self.root, self, self.current_palette.name)
 
@@ -386,6 +408,7 @@ class HistoryMaster():
     def remove_color(self, index):
         self.colors.pop(index)
         self.color_buttons.pop(index)
+        self.window_ref.current_palette.colors.pop(index)
         self.update_indexes()
 
     def update_indexes(self):
