@@ -4,11 +4,13 @@ from tkinter import ttk
 import pyperclip
 
 
+
+# Main GUI window
 class MainWindow:
     def __init__(self):
         # GUI creation
         self.root = Tk()
-        self.root.geometry("650x425")
+        self.root.geometry("670x425")
         self.root.resizable(height=False, width=False)
         self.root.title("Color Palette")
         self.root.config(bg="#212024")
@@ -17,6 +19,7 @@ class MainWindow:
         self.ColorButton = None
         self.picked_color = None
         self.context = ""
+        self.on_top = False
 
         # Palettes
         self.saved_palettes = []
@@ -29,7 +32,51 @@ class MainWindow:
 
         # Main Container
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
-        self.MainFrame.grid(row=0, column=0)
+        self.MainFrame.pack(expand=True, fill=Y)
+
+        # Toolbar at the bottom
+        self.ToolbarFrame = Frame(self.root, bg="#212024", padx=10)
+        self.ToolbarFrame.pack(expand=True, fill=X, anchor="s")
+
+        self.ToolbarDivider = Frame(self.ToolbarFrame, bg="white", width=650, pady=3)
+        self.ToolbarDivider.grid(row=0, columnspan=10)
+
+        # Stay-On-Top Button
+        self.StayOnTopFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.StayOnTopFrame.grid(row=1, column=0, sticky="W")
+
+        self.StayOnTopButton = Button(self.StayOnTopFrame, font=("Lato", 9), text="⬜ Unlocked", fg="white", bg="#212024", command=self.stay_on_top)
+        self.StayOnTopButton.grid(row=0, column=0, sticky="W")
+
+        # Eyedropper Tool
+        self.EyedropperFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.EyedropperFrame.grid(row=1, column=1, sticky="W")
+
+        self.EyedropperButton = Button(self.EyedropperFrame, font=("Lato", 9), text="🖊 Sample Color", fg="white", bg="#212024")
+        self.EyedropperButton.grid(row=0, column=0, sticky="W")
+
+        # Import Palette Button
+        self.ImportFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.ImportFrame.grid(row=1, column=7, sticky="E")
+
+        self.ImportButton = Button(self.ImportFrame, font=("Lato", 10), text="⬇ Import ", fg="white", bg="#212024")
+        self.ImportButton.grid(row=0, column=0, sticky="E")
+
+        # Export Palette Button
+        self.ExportFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.ExportFrame .grid(row=1, column=8, sticky="E")
+
+        self.ExportButton = Button(self.ExportFrame, font=("Lato", 10), text="⬆ Export ", fg="white",
+                                       bg="#212024")
+        self.ExportButton.grid(row=0, column=0, sticky="E")
+
+        # Save Palette Button
+        self.SaveFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
+        self.SaveFrame.grid(row=1, column=9, sticky="E")
+
+        self.SaveButton = Button(self.SaveFrame, font=("Lato", 10), text="Save Palettes ", fg="white",
+                                   bg="#212024", command=self.save_palette)
+        self.SaveButton.grid(row=0, column=0, sticky="E")
 
         # Color Picker Frame
         self.ColorFrame = Frame(self.MainFrame, bg="#212024")
@@ -74,6 +121,17 @@ class MainWindow:
 
         self.RGBCopyButton = ClipboardButton(self.root, MainWindow, self.RGBFrame, color_button.current_color[0])
 
+        # Add color to palette button
+        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
+        self.AddColorFrame.grid(row=2, column=0, sticky="NW")
+        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add ", fg="white", bg="#212024",
+                                     command=self.add_color_to_palette)
+        self.AddColorButton.grid(row=0, column=0, sticky="NW")
+
+        # Remove color from palette button
+        self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove (🎨)", fg="white", bg="#212024", command=self.remove_color)
+        self.DelColorButton.grid(row=0, column=1, sticky="NW")
+
         # Color History Frame
         self.HistoryFrame = Frame(self.MainFrame, bg="#212024", padx=15)
         self.HistoryFrame.grid(row=0, column=2, rowspan=2, columnspan=2, sticky="NE")
@@ -99,10 +157,11 @@ class MainWindow:
 
         self.PaletteMaster = HistoryMaster(self.root, self, self.PaletteFrame)
 
-        # Palette Dropdown Box
+        # Palette Tools Frame
         self.PaletteMenuFrame = Frame(self.PaletteFrame, bg="#212024")
         self.PaletteMenuFrame.grid(row=1, column=0, columnspan=3)
 
+        # Palette dropdown box
         self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.get_palettes(), width=20)
         self.PaletteMenu.config(textvariable=self.selected_palette)
         self.PaletteMenu.grid(row=0, column=0, columnspan=2)
@@ -132,19 +191,11 @@ class MainWindow:
                                        command=self.delete_palette)
         self.PaletteDelButton.grid(row=0, column=0, sticky="NW")
 
-        # Add color to palette button
-        self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
-        self.AddColorFrame.grid(row=2, column=0, sticky="NW")
-        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add ", fg="white", bg="#212024", command=self.add_color_to_palette)
-        self.AddColorButton.grid(row=0, column=0, sticky="NW")
-
-        self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove (🎨)", fg="white",
-                                     bg="#212024", command=self.remove_color)
-        self.DelColorButton.grid(row=0, column=1, sticky="NW")
-
-        self.toggle_button_state()
 
         # Display main window
+        self.toggle_button_state()
+        self.update_context("history")
+        self.load_palettes_from_file()
         self.root.mainloop()
 
 
@@ -178,12 +229,13 @@ class MainWindow:
 
     def add_color_to_palette(self):
         self.PaletteMaster.add_to_palette(self.ColorButton.current_color)
+        self.update_context("palette")
 
     def remove_color(self):
         if self.context == "palette":
             self.PaletteMaster.remove_from_palette(self.ColorButton.current_color)
         else:
-            self.HistoryMaster.remove_from_palette(self.ColorButton.current_color)
+            self.HistoryMaster.remove_from_history(self.ColorButton.current_color)
 
     def get_palettes(self):
         return [Palette.name for Palette in self.palettes]
@@ -219,12 +271,13 @@ class MainWindow:
 
     def add_palette(self):
         prev = self.selected_palette.get()
-        # Differentiate pallets when creating new ones
-        list = ' '.join(self.get_palettes()).split()
+        list = ' '.join(self.get_palettes()).split()   # Differentiate pallets when creating new ones
         int = list.count("New") + 1
         name = f'New Palette #{int}'
 
-        self.palettes.append(Palette(name, self.PaletteMaster.colors))
+        new_palette = Palette(name, self.PaletteMaster.colors)
+
+        self.palettes.append(new_palette)
         self.PaletteMenu.config(values=self.get_palettes())
         self.selected_palette.set(self.palettes[-1].name)
         self.current_palette = self.palettes[-1]
@@ -236,6 +289,8 @@ class MainWindow:
         # Temporary Palette copies the palettes over to the new palett you create
         if prev != "Temporary Palette":
             self.PaletteMaster.clear_history()
+
+        return new_palette
 
     def delete_palette(self):
         if self.selected_palette.get() != "Temporary Palette":
@@ -249,10 +304,64 @@ class MainWindow:
             self.toggle_button_state()
 
     def save_palette(self):
-        pass
+        if self.does_save_file_exist():
+            self.palette_to_text("w")
+        else:
+            self.palette_to_text("x")
 
+    # Save palettes into a text file
+    def palette_to_text(self, mode):
+        results = ""
+        file = open("palettes.txt", mode)
+        if len(self.palettes) > 1:
+            for palette in self.palettes:
+                if palette.name != "Temporary Palette":
+                    results += str(([palette.name, palette.colors])) + "\n"
+        file.write(str(results))
+        file.close()
+
+    def does_save_file_exist(self):
+        try:
+            with open("palettes.txt", "r") as f:
+                print("Found save file")
+                return True
+        except:
+            print("Save file doesn't exist")
+            return False
+
+    # Load saved palettes from a save file on program launch
+    def load_palettes_from_file(self):
+        if self.does_save_file_exist():
+            import ast # this import is only needed when this function executes
+            file = open("palettes.txt", "r")
+
+            for line in file.readlines(): # read lines from text file, each palette is a separate line
+                palette_info = ast.literal_eval(line) # convert string representation of a list into actual list of colors
+                new_palette = self.add_palette()
+                self.palettes[-1].name = palette_info[0]
+                self.palettes[-1].colors = palette_info[1]
+                self.PaletteMenu.config(values=self.get_palettes())
+
+            self.selected_palette.set(self.palettes[0].name)
+            self.on_palette_changed_event()
+            print(self.get_palettes())
+        else:
+            pass
+
+    # Display palette rename menu
     def show_rename_menu(self):
         Menu = RenameMenu(self.root, self, self.current_palette.name)
+
+    # Set the GUI to stay on top of other programs (or not)
+    def stay_on_top(self):
+        if self.on_top:
+            self.on_top = False
+            self.root.attributes('-topmost', False)
+            self.StayOnTopButton.config(text="⬜ Unlocked")
+        else:
+            self.on_top = True
+            self.root.attributes('-topmost', True)
+            self.StayOnTopButton.config(text="⬛ Locked")
 
 
 
@@ -272,6 +381,7 @@ class HistoryMaster():
 
         self.List1 = Frame(self.MainFrame, bg="#212024")
         self.List1.grid(row=0, column=0, sticky="NS")
+        self.List1.grid_columnconfigure(1, minsize=70)
 
         self.current_column = 0
         self.current_row = 0
@@ -298,6 +408,7 @@ class HistoryMaster():
     def remove_color(self, index):
         self.colors.pop(index)
         self.color_buttons.pop(index)
+        self.window_ref.current_palette.colors.pop(index)
         self.update_indexes()
 
     def update_indexes(self):
@@ -307,15 +418,18 @@ class HistoryMaster():
     def is_history_full(self):
         return len(self.colors) > 11
 
-    def reset(self):
+    def reset(self, b_palette):
         self.update_indexes()
         self.current_row = 0
         self.current_column = 0
-        for elem in self.color_buttons:
-            elem.remove_self()
+        for child in self.List1.winfo_children():
+            child.destroy()
         self.color_buttons = []
         for color in self.colors:
-            self.color_buttons.append(History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, False))
+            new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, b_palette)
+            if b_palette:
+                new_button.context = "palette"
+            self.color_buttons.append(new_button)
             if self.current_column == 0:
                 self.current_column = 1
             else:
@@ -336,6 +450,8 @@ class HistoryMaster():
         if color not in self.colors:
             self.colors.append(color)
             new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, True)
+            new_color.context = "palette"
+            self.window_ref.update_context("palette")
             self.color_buttons.append(new_color)
 
             if self.current_column == 0:
@@ -354,16 +470,50 @@ class HistoryMaster():
             index = self.colors.index(color)
             self.List1.winfo_children()[index].destroy()
             self.remove_color(index)
+            self.update_indexes()
 
-            if self.current_column == 0:
-                self.current_column = 1
-            elif self.current_column == 1:
-                self.current_column = 2
-            else:
-                self.current_column = 0
-                self.current_row += 1
+            self.current_row = 0
+            self.current_column = 0
+            for child in self.List1.winfo_children():
+                child.destroy()
+            self.color_buttons = []
+            for color in self.colors:
+                new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, color,
+                                                 len(self.color_buttons), self.current_column, self.current_row,
+                                                 True)
+                new_button.context = "palette"
+                self.color_buttons.append(new_button)
+                if self.current_column == 0:
+                    self.current_column = 1
+                elif self.current_column == 1:
+                    self.current_column = 2
+                else:
+                    self.current_column = 0
+                    self.current_row += 1
 
+            self.set_default("palette")
 
+    def remove_from_history(self, color):
+        if color in self.colors:
+            index = self.colors.index(color)
+            self.List1.winfo_children()[index].destroy()
+            self.remove_color(index)
+            self.reset(False)
+            self.set_default("history")
+
+    def set_default(self, context):
+        try:
+            self.window_ref.update_color_values(self.colors[0][1], self.colors[0][0], context)
+            self.window_ref.picked_color = (self.colors[0][1], self.colors[0][0])
+            self.window_ref.ColorButton.ColorButton.config(bg=str(self.colors[0][1]))
+            self.window_ref.ColorButton.current_color = (self.colors[0][0], self.colors[0][1])
+        except:
+            self.window_ref.update_color_values("#c72231", "199, 34, 49", context)
+            self.window_ref.picked_color = ("#c72231", "199, 34, 49")
+            self.window_ref.ColorButton.ColorButton.config(bg="#c72231")
+            self.window_ref.ColorButton.current_color = ("#c72231", "199, 34, 49")
+            if context != "history":
+                self.window_ref.update_context("history")
 
 
 class ClipboardButton():
@@ -392,20 +542,25 @@ class ColorButton():
         self.parent_widget = parent_widget
         self.height = height
         self.width = width
+        self.context = "history"
+
+        self.ColorName = StringVar(self.window_root)
+        self.ColorName.set("Name")
 
         self.DEFAULT_COLOR = "#c72231"
         self.current_color = ("199, 34, 49", self.DEFAULT_COLOR)
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5)
-        self.MainFrame.grid()
+        self.MainFrame.grid(sticky="W")
 
         self.ColorButton = Button(self.MainFrame, height=self.height, width=self.width, bg=self.current_color[1], highlightbackground = "black", highlightthickness = 2, bd=0, command=self.pick_color)
-        self.ColorButton.grid(row=0, column=0)
+        self.ColorButton.grid(row=0, column=0, sticky="W")
 
 
     # Functions
 
     def pick_color(self):
+        self.window_ref.update_context(self.context)
         color = colorchooser.askcolor(title="Pick a color")
         if color != (None, None):
             self.update_color(color, "")
@@ -429,6 +584,7 @@ class History_ColorButton():
         self.column = column
         self.row = row
         self.b_palette = b_palette
+        self.context = "palette"
 
         self.color = color
         self.ColorName = StringVar(self.window_root)
