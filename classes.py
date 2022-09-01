@@ -474,9 +474,11 @@ class HistoryMaster():
 
             self.current_row = 0
             self.current_column = 0
+
             for child in self.List1.winfo_children():
                 child.destroy()
             self.color_buttons = []
+
             for color in self.colors:
                 new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, color,
                                                  len(self.color_buttons), self.current_column, self.current_row,
