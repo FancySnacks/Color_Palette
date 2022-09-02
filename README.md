@@ -1,6 +1,6 @@
 # Color_Palette  
   
-![image](https://i.imgur.com/wzgRGBx.jpg)
+![image](https://i.imgur.com/7sNZg65.jpg)
   
 # About  
   
