@@ -20,6 +20,8 @@ class MainWindow:
         self.picked_color = None
         self.context = ""
         self.on_top = False
+        self.opacity_value = StringVar(self.root)
+        self.opacity_value.set("100")
 
         # Palettes
         self.saved_palettes = []
@@ -53,9 +55,18 @@ class MainWindow:
         self.StayOnTopButton = Button(self.StayOnTopFrame, font=("Lato", 9), text="⬜ Unlocked", fg="white", bg="#212024", command=self.stay_on_top)
         self.StayOnTopButton.grid(row=0, column=0, sticky="W")
 
+        # Opacity Scale
+        self.OpacitySlider = ttk.Scale(self.ToolbarFrame, from_=10, to=100, variable=self.opacity_value, command=self.change_window_opacity, orient=HORIZONTAL)
+        self.OpacitySlider.set(100)
+        self.OpacitySlider.grid(row=1, column=1, sticky="E")
+
+        self.OpacityLabel = Label(self.ToolbarFrame, textvariable=self.opacity_value, bg="#212024", fg="white")
+        self.OpacityLabel.grid(row=1, column=2, sticky="E")
+        self.OpacityLabel.config(text=f'{self.opacity_value.get()}%')
+
         # Eyedropper Tool
         self.EyedropperFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
-        self.EyedropperFrame.grid(row=1, column=1, sticky="W")
+        self.EyedropperFrame.grid(row=1, column=6, sticky="W")
 
         self.EyedropperButton = Button(self.EyedropperFrame, font=("Lato", 9), text="🖊 Sample Color", fg="white", bg="#212024")
         self.EyedropperButton.grid(row=0, column=0, sticky="W")
@@ -71,16 +82,14 @@ class MainWindow:
         self.ExportFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
         self.ExportFrame .grid(row=1, column=8, sticky="E")
 
-        self.ExportButton = Button(self.ExportFrame, font=("Lato", 10), text="⬆ Export ", fg="white",
-                                       bg="#212024")
+        self.ExportButton = Button(self.ExportFrame, font=("Lato", 10), text="⬆ Export ", fg="white",bg="#212024")
         self.ExportButton.grid(row=0, column=0, sticky="E")
 
         # Save Palettes Button
+
         self.SaveFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
         self.SaveFrame.grid(row=1, column=9, sticky="E")
-
-        self.SaveButton = Button(self.SaveFrame, font=("Lato", 10), text="Save Palettes ", fg="white",
-                                   bg="#212024", command=self.save_palette)
+        self.SaveButton = Button(self.SaveFrame, font=("Lato", 10), text="Save Palettes ", fg="white", bg="#212024", command=self.save_palette)
         self.SaveButton.grid(row=0, column=0, sticky="E")
 
 
@@ -393,8 +402,10 @@ class MainWindow:
             self.root.attributes('-topmost', True)
             self.StayOnTopButton.config(text="⬛ Locked")
 
-    def change_window_opacity(self):
-        self.root.attributes('-alpha', 0.1)
+    def change_window_opacity(self, value):
+        self.root.attributes('-alpha', float(value)/100)
+        self.opacity_value.set(f'{float(value):.1f}%')
+        self.root.update_idletasks()
 
 
 
