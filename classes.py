@@ -217,27 +217,28 @@ class MainWindow:
         self.root.mainloop()
 
 
-    # Functions
+    # --- Functions --- #
 
     def update_color_values(self, hex_value, rgb_value, context):
         self.update_context(context)
 
-        # HEX
+        # Update HEX value
         self.HexEntry.delete(0, END)
         self.HexEntry.insert(END, hex_value)
 
-        # RGB
+        # Update RGB value
         f_rgb_value = ' '.join(str(rgb_value).split()).replace("(", "").replace(")", "")
         self.RGBEntry.delete(0, END)
         self.RGBEntry.insert(END, f_rgb_value)
 
-        # Clipboard buttons
+        # Updaet clipboard buttons
         self.HexCopyButton.color_value = hex_value
         self.RGBCopyButton.color_value = f_rgb_value
 
-        # Add color button to the history
-        self.HistoryMaster.add_to_history((rgb_value, hex_value))
+        self.HistoryMaster.add_to_history((rgb_value, hex_value)) # Add new color to the history
 
+    # Update the 'remove button' context so in future it will remove color from either color history or current palette >
+    # depending on where the color button you've clicked on is located
     def update_context(self, context):
         self.context = context
         if context == "palette":
@@ -245,23 +246,29 @@ class MainWindow:
         else:
             self.DelColorButton.config(text="❌ Remove (⌛)")
 
+    # Add color to current palette
     def add_color_to_palette(self):
         self.PaletteMaster.add_to_palette(self.ColorButton.current_color)
         self.update_context("palette")
 
+    # Remove color from current palette
     def remove_color(self):
         if self.context == "palette":
             self.PaletteMaster.remove_from_palette(self.ColorButton.current_color)
         else:
             self.HistoryMaster.remove_from_history(self.ColorButton.current_color)
 
+    # Get names of all created palettes
     def get_palettes(self):
         return [Palette.name for Palette in self.palettes]
 
+    # Triggers when you switch to another palette using the dropdown box
+    # TODO: Obsolete, replace references with the function below, then remove it.
     def on_palette_changed(self, event):
         print("Switched to " + self.selected_palette.get())
         self.on_palette_changed_event()
 
+    # Triggers when you switch to another palette using the dropdown box
     def on_palette_changed_event(self):
         self.current_palette = None
         # Find the currently selected palette
@@ -286,7 +293,7 @@ class MainWindow:
             self.PaletteRenameButton.config(state=NORMAL)
             self.PaletteDelButton.config(state=NORMAL)
 
-
+    # Create new palette
     def add_palette(self):
         prev = self.selected_palette.get()
         list = ' '.join(self.get_palettes()).split()   # Differentiate pallets when creating new ones
@@ -310,22 +317,24 @@ class MainWindow:
 
         return new_palette
 
+    # Remove palette
     def delete_palette(self):
-        if self.selected_palette.get() != "Temporary Palette":
+        if self.selected_palette.get() != "Temporary Palette":  # Prevent user from accidentally deleting the work area palette
             index = self.get_palettes().index(self.selected_palette.get())
             self.selected_palette.set(self.palettes[0].name if self.palettes[index-1] == None else self.palettes[index-1].name)
             self.current_palette = self.palettes[0]if self.palettes[index-1] == None else self.palettes[index-1]
             self.palettes.pop(index)
             self.saved_palettes = self.palettes
-            self.PaletteMenu.config(values=self.get_palettes())
+            self.PaletteMenu.config(values=self.get_palettes())  # Update palette list in the dropdown menu
             self.on_palette_changed_event()
             self.toggle_button_state()
 
+    # Save current palette to a save file
     def save_palette(self):
         if self.does_save_file_exist():
             self.palette_to_text("w")
         else:
-            self.palette_to_text("x")
+            self.palette_to_text("x") # Create a fresh save file if there isn't one in the directory
 
     # Save palettes into a text file
     def palette_to_text(self, mode):
@@ -335,6 +344,9 @@ class MainWindow:
             for palette in self.palettes:
                 if palette.name != "Temporary Palette":
                     results += str(([palette.name, palette.colors])) + "\n"
+                    # Each line represents separate color palette
+                    # Format: [Palette_Name, [color list]]
+                    # Color list element format: (rgb_value, hex_value)
         file.write(str(results))
         file.close()
 
@@ -408,7 +420,7 @@ class HistoryMaster():
         self.current_row = 0
 
 
-    # Functions
+    # --- Functions --- #
 
     def add_to_history(self, color):
         if color not in self.colors:
