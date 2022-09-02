@@ -30,11 +30,16 @@ class MainWindow:
         self.selected_palette.set(self.saved_palettes[0].name)
         self.current_palette = self.saved_palettes[0]
 
-        # Main Container
+
+        # --- Main Container --- #
+
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
         self.MainFrame.pack(expand=True, fill=Y)
 
-        # Toolbar at the bottom
+
+        # --- Bottom Toolbar --- #
+
+        # Toolbar
         self.ToolbarFrame = Frame(self.root, bg="#212024", padx=10)
         self.ToolbarFrame.pack(expand=True, fill=X, anchor="s")
 
@@ -70,13 +75,16 @@ class MainWindow:
                                        bg="#212024")
         self.ExportButton.grid(row=0, column=0, sticky="E")
 
-        # Save Palette Button
+        # Save Palettes Button
         self.SaveFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
         self.SaveFrame.grid(row=1, column=9, sticky="E")
 
         self.SaveButton = Button(self.SaveFrame, font=("Lato", 10), text="Save Palettes ", fg="white",
                                    bg="#212024", command=self.save_palette)
         self.SaveButton.grid(row=0, column=0, sticky="E")
+
+
+        # --- Color Picker --- #
 
         # Color Picker Frame
         self.ColorFrame = Frame(self.MainFrame, bg="#212024")
@@ -88,8 +96,8 @@ class MainWindow:
         color_button = ColorButton(self.root, self, self.ColorFrame, 10, 25)
         self.ColorButton = color_button
 
-            # Color values
-            # HEX
+        # Color values
+        # HEX
         self.HexFrame = Frame(self.ColorFrame, bg="#212024")
         self.HexFrame.grid(row=3, column=0, sticky="NW")
 
@@ -105,7 +113,7 @@ class MainWindow:
 
         self.HexCopyButton = ClipboardButton(self.root, MainWindow, self.HexFrame, color_button.current_color[1])
 
-            # RGB
+        # RGB
         self.RGBFrame = Frame(self.ColorFrame, bg="#212024")
         self.RGBFrame.grid(row=4, column=0, sticky="NW")
 
@@ -132,6 +140,9 @@ class MainWindow:
         self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove (🎨)", fg="white", bg="#212024", command=self.remove_color)
         self.DelColorButton.grid(row=0, column=1, sticky="NW")
 
+
+        # --- Color History --- #
+
         # Color History Frame
         self.HistoryFrame = Frame(self.MainFrame, bg="#212024", padx=15)
         self.HistoryFrame.grid(row=0, column=2, rowspan=2, columnspan=2, sticky="NE")
@@ -139,6 +150,7 @@ class MainWindow:
         self.HistoryLabel = Label(self.HistoryFrame, font=("Lato", 12), bg="#212024", text="⌛  History", fg="white", pady=5)
         self.HistoryLabel.grid(row=0, column=0, sticky="NW")
 
+        # Create 'History Master' object, it manages history of chosen colors
         self.HistoryMaster = HistoryMaster(self.root, self, self.HistoryFrame)
         self.HistoryMaster.add_to_history(self.ColorButton.current_color)
 
@@ -148,6 +160,9 @@ class MainWindow:
         self.ClearButton = Button(self.ClearButtonFrame, font=("Arial", 10), text="❌  Clear  ", fg="white", bg="#212024", command=self.HistoryMaster.clear_history)
         self.ClearButton.grid(row=0, column=0, sticky="NW")
 
+
+        # --- Color Palettes --- #
+
         # Palette List Frame
         self.PaletteFrame = Frame(self.MainFrame, bg="#212024", padx=10)
         self.PaletteFrame.grid(row=0, column=4, rowspan=2, columnspan=2, sticky="NE")
@@ -155,13 +170,14 @@ class MainWindow:
         self.PaletteLabel = Label(self.PaletteFrame, font=("Lato", 12), bg="#212024", text="🎨  Palettes", fg="white", pady=5)
         self.PaletteLabel.grid(row=0, column=0, sticky="NW")
 
+        # Create 'Palette Master' object, it manages all created and saved color palettes
         self.PaletteMaster = HistoryMaster(self.root, self, self.PaletteFrame)
 
         # Palette Tools Frame
         self.PaletteMenuFrame = Frame(self.PaletteFrame, bg="#212024")
         self.PaletteMenuFrame.grid(row=1, column=0, columnspan=3)
 
-        # Palette dropdown box
+        # Palette selection dropdown box
         self.PaletteMenu = ttk.Combobox(self.PaletteMenuFrame, values=self.get_palettes(), width=20)
         self.PaletteMenu.config(textvariable=self.selected_palette)
         self.PaletteMenu.grid(row=0, column=0, columnspan=2)
@@ -176,14 +192,14 @@ class MainWindow:
                                      command=self.add_palette)
         self.PaletteAddButton.grid(row=0, column=0, sticky="NW")
 
-        # Palette Rename Button
+            # Palette Rename Button
         self.PaletteRenameFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
         self.PaletteRenameFrame.grid(row=0, column=3, sticky="NW")
 
         self.PaletteRenameButton = Button(self.PaletteRenameFrame, font=("Lato", 10), text="✏", fg="white", bg="#212024", command=self.show_rename_menu)
         self.PaletteRenameButton.grid(row=0, column=0, sticky="NW")
 
-        # Palette Delete Button
+            # Palette Delete Button
         self.PaletteDelFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
         self.PaletteDelFrame.grid(row=0, column=4, sticky="NW")
 
@@ -191,6 +207,8 @@ class MainWindow:
                                        command=self.delete_palette)
         self.PaletteDelButton.grid(row=0, column=0, sticky="NW")
 
+
+        # --- GUI Initialization --- #
 
         # Display main window
         self.toggle_button_state()
@@ -362,6 +380,9 @@ class MainWindow:
             self.on_top = True
             self.root.attributes('-topmost', True)
             self.StayOnTopButton.config(text="⬛ Locked")
+
+    def change_window_opacity(self):
+        self.root.attributes('-alpha', 0.1)
 
 
 
