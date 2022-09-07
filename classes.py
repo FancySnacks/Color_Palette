@@ -1,8 +1,9 @@
-from helper_functions import hex_to_rgb, is_hex_color
+from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex
 from tkinter import *
 from tkinter import colorchooser
 from tkinter import ttk
 import pyperclip
+import ast
 
 
 
@@ -24,8 +25,10 @@ class MainWindow:
         self.opacity_value = StringVar(self.root)
         self.opacity_value.set("100")
 
-        self.user_entry = StringVar(self.root)
+        self.hex_user_entry = StringVar(self.root)
         self.previous_hex = "#c72231"
+        self.rgb_user_entry = StringVar(self.root)
+        self.previous_rgb = "#c72231"
 
         # Palettes
         self.saved_palettes = []
@@ -164,7 +167,7 @@ class MainWindow:
                               width=10,
                               bg="#212024",
                               fg="white",
-                              textvariable=self.user_entry)
+                              textvariable=self.hex_user_entry)
         self.HexEntry.insert(END, color_button.current_color[1])
         self.HexEntry.grid(row=0, column=0, sticky="NW")
 
@@ -185,10 +188,12 @@ class MainWindow:
         self.RGBEntryFrame = Frame(self.RGBFrame)
         self.RGBEntryFrame.grid(row=0, column=1)
 
-        self.RGBEntry = Entry(self.RGBEntryFrame, font=("Arial", 11),
+        self.RGBEntry = Entry(self.RGBEntryFrame,
+                              font=("Arial", 11),
                               width=10,
                               bg="#212024",
-                              fg="white")
+                              fg="white",
+                              textvariable=self.rgb_user_entry)
         self.RGBEntry.insert(END, color_button.current_color[0])
         self.RGBEntry.grid(row=0, column=0, sticky="NW")
 
@@ -313,7 +318,8 @@ class MainWindow:
         # --- GUI Initialization --- #
 
         # Display main window
-        self.user_entry.trace_add("write", self.hex_enter)
+        self.hex_user_entry.trace_add("write", self.hex_enter)
+        self.rgb_user_entry.trace_add("write", self.rgb_enter)
         self.toggle_button_state()
         self.update_context("history")
         self.load_palettes_from_file()
@@ -466,7 +472,6 @@ class MainWindow:
     # Load saved palettes from a save file on program launch
     def load_palettes_from_file(self):
         if self.does_save_file_exist():
-            import ast # this import is only needed when this function executes
             file = open("palettes.txt", "r")
 
             for line in file.readlines(): # read lines from text file, each palette is a separate line
@@ -502,11 +507,18 @@ class MainWindow:
         self.opacity_value.set(f'{float(value):.1f}%')
         self.root.update_idletasks()
 
-    # Check if entered HEX number in the entry is valid when user types something in HEX entry widget
+    # Check if input is a valid HEX value when user types something in HEX entry widget
     def hex_enter(self, *args):
-        hex = self.user_entry.get()
+        hex = self.hex_user_entry.get()
         if is_hex_color(hex):
             self.ColorButton.update_color((hex_to_rgb(hex), hex), "history")
+
+    # Check if input is a valid RGB value when user types something in RGB entry widget
+    def rgb_enter(self, *args):
+        rgb = ast.literal_eval(self.rgb_user_entry.get())
+        if is_rgb_color(rgb):
+            self.ColorButton.update_color((rgb, rgb_to_hex(rgb)), "history")
+            self.HistoryMaster.remove_from_history(self.HistoryMaster.colors[-1])
 
 
 # Stores colors
@@ -538,7 +550,7 @@ class HistoryMaster():
             if self.is_history_full():
                 self.color_buttons[0].remove_self()
                 self.remove_color(0)
-                self.reset()
+                self.reset(False)
             self.colors.append(color)
             new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, False)
             self.color_buttons.append(new_color)
