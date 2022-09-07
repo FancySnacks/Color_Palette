@@ -1,3 +1,4 @@
+from helper_functions import hex_to_rgb, is_hex_color
 from tkinter import *
 from tkinter import colorchooser
 from tkinter import ttk
@@ -22,6 +23,9 @@ class MainWindow:
         self.on_top = False
         self.opacity_value = StringVar(self.root)
         self.opacity_value.set("100")
+
+        self.user_entry = StringVar(self.root)
+        self.previous_hex = "#c72231"
 
         # Palettes
         self.saved_palettes = []
@@ -52,15 +56,28 @@ class MainWindow:
         self.StayOnTopFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
         self.StayOnTopFrame.grid(row=1, column=0, sticky="W")
 
-        self.StayOnTopButton = Button(self.StayOnTopFrame, font=("Lato", 9), text="⬜ Unlocked", fg="white", bg="#212024", command=self.stay_on_top)
+        self.StayOnTopButton = Button(self.StayOnTopFrame,
+                                      font=("Lato", 9),
+                                      text="⬜ Unlocked",
+                                      fg="white",
+                                      bg="#212024",
+                                      command=self.stay_on_top)
         self.StayOnTopButton.grid(row=0, column=0, sticky="W")
 
         # Opacity Scale
-        self.OpacitySlider = ttk.Scale(self.ToolbarFrame, from_=10, to=100, variable=self.opacity_value, command=self.change_window_opacity, orient=HORIZONTAL)
+        self.OpacitySlider = ttk.Scale(self.ToolbarFrame,
+                                       from_=10,
+                                       to=100,
+                                       variable=self.opacity_value,
+                                       command=self.change_window_opacity,
+                                       orient=HORIZONTAL)
         self.OpacitySlider.set(100)
         self.OpacitySlider.grid(row=1, column=1, sticky="E")
 
-        self.OpacityLabel = Label(self.ToolbarFrame, textvariable=self.opacity_value, bg="#212024", fg="white")
+        self.OpacityLabel = Label(self.ToolbarFrame,
+                                  textvariable=self.opacity_value,
+                                  bg="#212024",
+                                  fg="white")
         self.OpacityLabel.grid(row=1, column=2, sticky="E")
         self.OpacityLabel.config(text=f'{self.opacity_value.get()}%')
 
@@ -68,28 +85,45 @@ class MainWindow:
         self.EyedropperFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
         self.EyedropperFrame.grid(row=1, column=6, sticky="W")
 
-        self.EyedropperButton = Button(self.EyedropperFrame, font=("Lato", 9), text="🖊 Sample Color", fg="white", bg="#212024")
+        self.EyedropperButton = Button(self.EyedropperFrame,
+                                       font=("Lato", 9),
+                                       text="🖊 Sample Color",
+                                       fg="white",
+                                       bg="#212024")
         self.EyedropperButton.grid(row=0, column=0, sticky="W")
 
         # Import Palette Button
         self.ImportFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
         self.ImportFrame.grid(row=1, column=7, sticky="E")
 
-        self.ImportButton = Button(self.ImportFrame, font=("Lato", 10), text="⬇ Import ", fg="white", bg="#212024")
+        self.ImportButton = Button(self.ImportFrame,
+                                   font=("Lato", 10),
+                                   text="⬇ Import ",
+                                   fg="white",
+                                   bg="#212024")
         self.ImportButton.grid(row=0, column=0, sticky="E")
 
         # Export Palette Button
         self.ExportFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
         self.ExportFrame .grid(row=1, column=8, sticky="E")
 
-        self.ExportButton = Button(self.ExportFrame, font=("Lato", 10), text="⬆ Export ", fg="white",bg="#212024")
+        self.ExportButton = Button(self.ExportFrame,
+                                   font=("Lato", 10),
+                                   text="⬆ Export ",
+                                   fg="white",
+                                   bg="#212024")
         self.ExportButton.grid(row=0, column=0, sticky="E")
 
         # Save Palettes Button
 
         self.SaveFrame = Frame(self.ToolbarFrame, bg="#212024", pady=2)
         self.SaveFrame.grid(row=1, column=9, sticky="E")
-        self.SaveButton = Button(self.SaveFrame, font=("Lato", 10), text="Save Palettes ", fg="white", bg="#212024", command=self.save_palette)
+        self.SaveButton = Button(self.SaveFrame,
+                                 font=("Lato", 10),
+                                 text="Save Palettes ",
+                                 fg="white",
+                                 bg="#212024",
+                                 command=self.save_palette)
         self.SaveButton.grid(row=0, column=0, sticky="E")
 
 
@@ -99,7 +133,11 @@ class MainWindow:
         self.ColorFrame = Frame(self.MainFrame, bg="#212024")
         self.ColorFrame.grid(row=0, column=0, rowspan=2, columnspan=2, sticky="NW")
 
-        self.ColorLabel = Label(self.ColorFrame, font=("Lato", 12), bg="#212024", text="🌈  Color Picker", fg="white", pady=5)
+        self.ColorLabel = Label(self.ColorFrame,
+                                font=("Lato", 12),
+                                bg="#212024",
+                                text="🌈  Color Picker",
+                                fg="white", pady=5)
         self.ColorLabel.grid(row=0, column=0, sticky="NW")
 
         color_button = ColorButton(self.root, self, self.ColorFrame, 10, 25)
@@ -110,13 +148,23 @@ class MainWindow:
         self.HexFrame = Frame(self.ColorFrame, bg="#212024")
         self.HexFrame.grid(row=3, column=0, sticky="NW")
 
-        self.HexLabel = Label(self.HexFrame, text="Hex Code :", font=("Lato", 11, "bold"), bg="#212024", fg="#aba7a7", pady=5)
+        self.HexLabel = Label(self.HexFrame,
+                              text="Hex Code :",
+                              font=("Lato", 11, "bold"),
+                              bg="#212024",
+                              fg="#aba7a7",
+                              pady=5)
         self.HexLabel.grid(row=0, column=0, sticky="NW")
 
         self.HexEntryFrame = Frame(self.HexFrame)
         self.HexEntryFrame.grid(row=0, column=1)
 
-        self.HexEntry = Entry(self.HexEntryFrame, font=("Arial", 11), width=10, bg="#212024", fg="white")
+        self.HexEntry = Entry(self.HexEntryFrame,
+                              font=("Arial", 11),
+                              width=10,
+                              bg="#212024",
+                              fg="white",
+                              textvariable=self.user_entry)
         self.HexEntry.insert(END, color_button.current_color[1])
         self.HexEntry.grid(row=0, column=0, sticky="NW")
 
@@ -126,13 +174,21 @@ class MainWindow:
         self.RGBFrame = Frame(self.ColorFrame, bg="#212024")
         self.RGBFrame.grid(row=4, column=0, sticky="NW")
 
-        self.RGBLabel = Label(self.RGBFrame, text="RGB Code :", font=("lato", 11, "bold"), bg="#212024", fg="#aba7a7", pady=5)
+        self.RGBLabel = Label(self.RGBFrame,
+                              text="RGB Code :",
+                              font=("lato", 11, "bold"),
+                              bg="#212024",
+                              fg="#aba7a7",
+                              pady=5)
         self.RGBLabel.grid(row=0, column=0, sticky="NW")
 
         self.RGBEntryFrame = Frame(self.RGBFrame)
         self.RGBEntryFrame.grid(row=0, column=1)
 
-        self.RGBEntry = Entry(self.RGBEntryFrame, font=("Arial", 11), width=10, bg="#212024", fg="white")
+        self.RGBEntry = Entry(self.RGBEntryFrame, font=("Arial", 11),
+                              width=10,
+                              bg="#212024",
+                              fg="white")
         self.RGBEntry.insert(END, color_button.current_color[0])
         self.RGBEntry.grid(row=0, column=0, sticky="NW")
 
@@ -141,12 +197,21 @@ class MainWindow:
         # Add color to palette button
         self.AddColorFrame = Frame(self.ColorFrame, bg="#212024", padx=8, pady=3)
         self.AddColorFrame.grid(row=2, column=0, sticky="NW")
-        self.AddColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="➕ Add ", fg="white", bg="#212024",
+        self.AddColorButton = Button(self.AddColorFrame,
+                                     font=("Arial", 10),
+                                     text="➕ Add ",
+                                     fg="white",
+                                     bg="#212024",
                                      command=self.add_color_to_palette)
         self.AddColorButton.grid(row=0, column=0, sticky="NW")
 
         # Remove color from palette button
-        self.DelColorButton = Button(self.AddColorFrame, font=("Arial", 10), text="❌ Remove (🎨)", fg="white", bg="#212024", command=self.remove_color)
+        self.DelColorButton = Button(self.AddColorFrame,
+                                     font=("Arial", 10),
+                                     text="❌ Remove (🎨)",
+                                     fg="white",
+                                     bg="#212024",
+                                     command=self.remove_color)
         self.DelColorButton.grid(row=0, column=1, sticky="NW")
 
 
@@ -156,7 +221,12 @@ class MainWindow:
         self.HistoryFrame = Frame(self.MainFrame, bg="#212024", padx=15)
         self.HistoryFrame.grid(row=0, column=2, rowspan=2, columnspan=2, sticky="NE")
 
-        self.HistoryLabel = Label(self.HistoryFrame, font=("Lato", 12), bg="#212024", text="⌛  History", fg="white", pady=5)
+        self.HistoryLabel = Label(self.HistoryFrame,
+                                  font=("Lato", 12),
+                                  bg="#212024",
+                                  text="⌛  History",
+                                  fg="white",
+                                  pady=5)
         self.HistoryLabel.grid(row=0, column=0, sticky="NW")
 
         # Create 'History Master' object, it manages history of chosen colors
@@ -166,7 +236,12 @@ class MainWindow:
         # Clear History Button
         self.ClearButtonFrame = Frame(self.HistoryFrame, bg="#212024")
         self.ClearButtonFrame.grid(row=1, column=0, sticky="NW")
-        self.ClearButton = Button(self.ClearButtonFrame, font=("Arial", 10), text="❌  Clear  ", fg="white", bg="#212024", command=self.HistoryMaster.clear_history)
+        self.ClearButton = Button(self.ClearButtonFrame,
+                                  font=("Arial", 10),
+                                  text="❌  Clear  ",
+                                  fg="white",
+                                  bg="#212024",
+                                  command=self.HistoryMaster.clear_history)
         self.ClearButton.grid(row=0, column=0, sticky="NW")
 
 
@@ -176,7 +251,12 @@ class MainWindow:
         self.PaletteFrame = Frame(self.MainFrame, bg="#212024", padx=10)
         self.PaletteFrame.grid(row=0, column=4, rowspan=2, columnspan=2, sticky="NE")
 
-        self.PaletteLabel = Label(self.PaletteFrame, font=("Lato", 12), bg="#212024", text="🎨  Palettes", fg="white", pady=5)
+        self.PaletteLabel = Label(self.PaletteFrame,
+                                  font=("Lato", 12),
+                                  bg="#212024",
+                                  text="🎨  Palettes",
+                                  fg="white",
+                                  pady=5)
         self.PaletteLabel.grid(row=0, column=0, sticky="NW")
 
         # Create 'Palette Master' object, it manages all created and saved color palettes
@@ -197,7 +277,11 @@ class MainWindow:
         self.PaletteAddFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=4, pady=3)
         self.PaletteAddFrame.grid(row=0, column=2, sticky="NW")
 
-        self.PaletteAddButton = Button(self.PaletteAddFrame, font=("Lato", 10), text="➕", fg="white", bg="#212024",
+        self.PaletteAddButton = Button(self.PaletteAddFrame,
+                                       font=("Lato", 10),
+                                       text="➕",
+                                       fg="white",
+                                       bg="#212024",
                                      command=self.add_palette)
         self.PaletteAddButton.grid(row=0, column=0, sticky="NW")
 
@@ -205,14 +289,23 @@ class MainWindow:
         self.PaletteRenameFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
         self.PaletteRenameFrame.grid(row=0, column=3, sticky="NW")
 
-        self.PaletteRenameButton = Button(self.PaletteRenameFrame, font=("Lato", 10), text="✏", fg="white", bg="#212024", command=self.show_rename_menu)
+        self.PaletteRenameButton = Button(self.PaletteRenameFrame,
+                                          font=("Lato", 10),
+                                          text="✏",
+                                          fg="white",
+                                          bg="#212024",
+                                          command=self.show_rename_menu)
         self.PaletteRenameButton.grid(row=0, column=0, sticky="NW")
 
             # Palette Delete Button
         self.PaletteDelFrame = Frame(self.PaletteMenuFrame, bg="#212024", padx=2, pady=3)
         self.PaletteDelFrame.grid(row=0, column=4, sticky="NW")
 
-        self.PaletteDelButton = Button(self.PaletteDelFrame, font=("Lato", 10), text="❌", fg="white", bg="#212024",
+        self.PaletteDelButton = Button(self.PaletteDelFrame,
+                                       font=("Lato", 10),
+                                       text="❌",
+                                       fg="white",
+                                       bg="#212024",
                                        command=self.delete_palette)
         self.PaletteDelButton.grid(row=0, column=0, sticky="NW")
 
@@ -220,6 +313,7 @@ class MainWindow:
         # --- GUI Initialization --- #
 
         # Display main window
+        self.user_entry.trace_add("write", self.hex_enter)
         self.toggle_button_state()
         self.update_context("history")
         self.load_palettes_from_file()
@@ -234,6 +328,7 @@ class MainWindow:
         # Update HEX value
         self.HexEntry.delete(0, END)
         self.HexEntry.insert(END, hex_value)
+        self.previous_hex = str(hex_value)
 
         # Update RGB value
         f_rgb_value = ' '.join(str(rgb_value).split()).replace("(", "").replace(")", "")
@@ -407,6 +502,11 @@ class MainWindow:
         self.opacity_value.set(f'{float(value):.1f}%')
         self.root.update_idletasks()
 
+    # Check if entered HEX number in the entry is valid when user types something in HEX entry widget
+    def hex_enter(self, *args):
+        hex = self.user_entry.get()
+        if is_hex_color(hex):
+            self.ColorButton.update_color((hex_to_rgb(hex), hex), "history")
 
 
 # Stores colors
@@ -553,11 +653,13 @@ class HistoryMaster():
             self.window_ref.picked_color = (self.colors[0][1], self.colors[0][0])
             self.window_ref.ColorButton.ColorButton.config(bg=str(self.colors[0][1]))
             self.window_ref.ColorButton.current_color = (self.colors[0][0], self.colors[0][1])
+            self.window_ref.previous_hex = str(self.colors[0][1])
         except:
             self.window_ref.update_color_values("#c72231", "199, 34, 49", context)
             self.window_ref.picked_color = ("#c72231", "199, 34, 49")
             self.window_ref.ColorButton.ColorButton.config(bg="#c72231")
             self.window_ref.ColorButton.current_color = ("#c72231", "199, 34, 49")
+            self.window_ref.previous_hex = "#c72231"
             if context != "history":
                 self.window_ref.update_context("history")
 
