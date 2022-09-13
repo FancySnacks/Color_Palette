@@ -28,7 +28,8 @@ class MainWindow:
         self.hex_user_entry = StringVar(self.root)
         self.previous_hex = "#c72231"
         self.rgb_user_entry = StringVar(self.root)
-        self.previous_rgb = "#c72231"
+        self.previous_rgb = hex_to_rgb(self.previous_hex)
+        self.manual_entry = False
 
         # Palettes
         self.saved_palettes = []
@@ -44,6 +45,14 @@ class MainWindow:
 
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
         self.MainFrame.pack(expand=True, fill=Y)
+
+        # --- Top Toolbar --- #
+        self.MenuBar = Menu(self.root)
+        self.root.config(menu=self.MenuBar)
+
+        self.FileMenu = Menu(self.MenuBar)
+        self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
+        self.FileMenu.add_command(label="Exit", command=exit)
 
 
         # --- Bottom Toolbar --- #
@@ -328,20 +337,23 @@ class MainWindow:
 
     # --- Functions --- #
 
-    def update_color_values(self, hex_value, rgb_value, context):
-        self.update_context(context)
+    def update_color_values(self, hex_value: str, rgb_value: tuple, context: str):
+        self.manual_entry = False
 
         # Update HEX value
+        self.update_context(context)
         self.HexEntry.delete(0, END)
+        self.manual_entry = False
         self.HexEntry.insert(END, hex_value)
         self.previous_hex = str(hex_value)
 
         # Update RGB value
         f_rgb_value = ' '.join(str(rgb_value).split()).replace("(", "").replace(")", "")
         self.RGBEntry.delete(0, END)
+        self.manual_entry = False
         self.RGBEntry.insert(END, f_rgb_value)
 
-        # Updaet clipboard buttons
+        # Update clipboard buttons
         self.HexCopyButton.color_value = hex_value
         self.RGBCopyButton.color_value = f_rgb_value
 
@@ -349,7 +361,7 @@ class MainWindow:
 
     # Update the 'remove button' context so in future it will remove color from either color history or current palette >
     # depending on where the color button you've clicked on is located
-    def update_context(self, context):
+    def update_context(self, context: str):
         self.context = context
         if context == "palette":
             self.DelColorButton.config(text="❌ Remove (🎨)")
@@ -447,7 +459,7 @@ class MainWindow:
             self.palette_to_text("x") # Create a fresh save file if there isn't one in the directory
 
     # Save palettes into a text file
-    def palette_to_text(self, mode):
+    def palette_to_text(self, mode: str):
         results = ""
         file = open("palettes.txt", mode)
         if len(self.palettes) > 1:
@@ -502,23 +514,29 @@ class MainWindow:
             self.root.attributes('-topmost', True)
             self.StayOnTopButton.config(text="⬛ Locked")
 
-    def change_window_opacity(self, value):
+    def change_window_opacity(self, value: str):
         self.root.attributes('-alpha', float(value)/100)
         self.opacity_value.set(f'{float(value):.1f}%')
         self.root.update_idletasks()
 
     # Check if input is a valid HEX value when user types something in HEX entry widget
     def hex_enter(self, *args):
-        hex = self.hex_user_entry.get()
-        if is_hex_color(hex):
-            self.ColorButton.update_color((hex_to_rgb(hex), hex), "history")
+        if self.manual_entry:
+            hex = self.hex_user_entry.get()
+            if is_hex_color(hex):
+                self.ColorButton.update_color((hex_to_rgb(hex), hex), "history")
+        else:
+            self.manual_entry = True
 
     # Check if input is a valid RGB value when user types something in RGB entry widget
     def rgb_enter(self, *args):
-        rgb = ast.literal_eval(self.rgb_user_entry.get())
-        if is_rgb_color(rgb):
-            self.ColorButton.update_color((rgb, rgb_to_hex(rgb)), "history")
-            self.HistoryMaster.remove_from_history(self.HistoryMaster.colors[-1])
+        if self.manual_entry:
+            rgb = ast.literal_eval(self.rgb_user_entry.get())
+            if is_rgb_color(rgb):
+                self.ColorButton.update_color((rgb, rgb_to_hex(rgb)), "history")
+        else:
+            self.manual_entry = True
+
 
 
 # Stores colors
@@ -560,6 +578,12 @@ class HistoryMaster():
             else:
                 self.current_column = 0
                 self.current_row += 1
+
+    def is_color_in_history(self, rgb: tuple) -> bool:
+        for color in self.colors:
+            if color[0] == rgb:
+                return True
+        return False
 
     def remove_color(self, index):
         self.colors.pop(index)
