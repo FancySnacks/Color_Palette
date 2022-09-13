@@ -1,4 +1,4 @@
-from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex
+from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
 from tkinter import *
 from tkinter import colorchooser
 from tkinter import ttk
