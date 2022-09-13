@@ -54,6 +54,7 @@ class MainWindow:
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
         self.FileMenu.add_command(label="Exit", command=exit)
 
+
         # --- Bottom Toolbar --- #
 
         # Toolbar
