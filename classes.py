@@ -53,7 +53,7 @@ class MainWindow:
         self.FileMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
         self.FileMenu.add_command(label="Preferences", command=exit)
-        self.ImportMenu.add_separator()
+        self.FileMenu.add_separator()
         self.FileMenu.add_command(label="Exit", command=exit)
 
         self.ImportMenu = Menu(self.MenuBar, tearoff=0)
