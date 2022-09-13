@@ -50,7 +50,7 @@ class MainWindow:
         self.MenuBar = Menu(self.root)
         self.root.config(menu=self.MenuBar)
 
-        self.FileMenu = Menu(self.MenuBar)
+        self.FileMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
         self.FileMenu.add_command(label="Exit", command=exit)
 
