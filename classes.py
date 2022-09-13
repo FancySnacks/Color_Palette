@@ -52,7 +52,22 @@ class MainWindow:
 
         self.FileMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
+        self.FileMenu.add_command(label="Preferences", command=exit)
+        self.ImportMenu.add_separator()
         self.FileMenu.add_command(label="Exit", command=exit)
+
+        self.ImportMenu = Menu(self.MenuBar, tearoff=0)
+        self.MenuBar.add_cascade(label="Insert", menu=self.ImportMenu)
+        self.ImportMenu.add_command(label="Image as Palette", command=exit)
+        self.ImportMenu.add_command(label="Text File as Palette", command=exit)
+        self.ImportMenu.add_separator()
+        self.ImportMenu.add_command(label="Random Color", command=self.add_random_color)
+        self.ImportMenu.add_command(label="Random Palette", command=exit)
+
+        self.ExportMenu = Menu(self.MenuBar, tearoff=0)
+        self.MenuBar.add_cascade(label="Export", menu=self.ExportMenu)
+        self.ExportMenu.add_command(label="Palette as Text File", command=exit)
+        self.ExportMenu.add_command(label="Palette as Image", command=exit)
 
 
         # --- Bottom Toolbar --- #
@@ -536,6 +551,11 @@ class MainWindow:
                 self.ColorButton.update_color((rgb, rgb_to_hex(rgb)), "history")
         else:
             self.manual_entry = True
+
+    # Add random color to the history
+    def add_random_color(self):
+        random_color = random_rgb()
+        self.update_color_values(rgb_to_hex(random_color), random_color, "history")
 
 
 
