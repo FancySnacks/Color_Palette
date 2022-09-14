@@ -54,6 +54,14 @@ class MainWindow:
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
         self.MainFrame.pack(expand=True, fill=Y)
 
+        # --- Top Toolbar --- #
+        self.MenuBar = Menu(self.root)
+        self.root.config(menu=self.MenuBar)
+
+        self.FileMenu = Menu(self.MenuBar)
+        self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
+        self.FileMenu.add_command(label="Exit", command=exit)
+
 
         # --- Top Toolbar --- #
 
@@ -617,7 +625,6 @@ class MainWindow:
     def add_random_color(self):
         random_color = random_rgb()
         self.update_color_values(rgb_to_hex(random_color), random_color, "history")
-
 
 
 # Stores colors
