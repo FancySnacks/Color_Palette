@@ -46,7 +46,12 @@ class MainWindow:
         self.autoload_savefile = BooleanVar(self.root)
         self.autoload_savefile.set(True)
         self.savefile_name = "palettes.txt"
+
         self.configfile_name = "config.txt"
+        self.DEFAULT_SETTINGS = {"AutoLoadSaveFile":"True",
+                              "PaletteSaveFileDir":f'./{self.savefile_name}',
+                              "ConfigFileDir":f'./{self.configfile_name}'}
+        self.user_settings = self.DEFAULT_SETTINGS
 
 
         # --- Main Container --- #
