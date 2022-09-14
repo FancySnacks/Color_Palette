@@ -40,34 +40,72 @@ class MainWindow:
         self.selected_palette.set(self.saved_palettes[0].name)
         self.current_palette = self.saved_palettes[0]
 
+        # User Preferences
+        self.autoload_savefile = BooleanVar(self.root)
+        self.autoload_savefile.set(True)
+        self.savefile_name = "palettes.txt"
+        self.configfile_name = "config.txt"
+
 
         # --- Main Container --- #
 
         self.MainFrame = Frame(self.root, padx=5, pady=5, bg="#212024")
         self.MainFrame.pack(expand=True, fill=Y)
 
+
         # --- Top Toolbar --- #
+
         self.MenuBar = Menu(self.root)
         self.root.config(menu=self.MenuBar)
 
+        # File Menu
         self.FileMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
-        self.FileMenu.add_command(label="Preferences", command=exit)
+        self.FileMenu.add_checkbutton(label="Load Save File on Start", variable=self.autoload_savefile)
         self.FileMenu.add_separator()
         self.FileMenu.add_command(label="Exit", command=exit)
 
+        # General TOol Menu
+        self.ToolMenu = Menu(self.MenuBar, tearoff=0)
+        self.MenuBar.add_cascade(label="Edit", menu=self.ToolMenu)
+        self.ToolMenu.add_command(label="Random Color", command=self.add_random_color)
+        self.ToolMenu.add_command(label="Random Palette", command=exit)
+        self.ToolMenu.add_command(label="Eyedropper", command=exit)
+
+        # Palette Tool Menu
+        self.PaletteToolMenu = Menu(self.MenuBar, tearoff=0)
+        self.MenuBar.add_cascade(label="Palettes", menu=self.PaletteToolMenu)
+            # General
+        self.PaletteToolMenu.add_command(label="Save All Palettes", command=exit)
+        self.PaletteToolMenu.add_command(label="Reload Save File", command=exit)
+        self.PaletteToolMenu.add_separator()
+        self.PaletteToolMenu.add_command(label="Clear History", command=exit)
+        self.PaletteToolMenu.add_command(label="Clear Palette", command=exit)
+        self.PaletteToolMenu.add_command(label="Clear All Palettes", command=exit)
+
+        # Import Menu
         self.ImportMenu = Menu(self.MenuBar, tearoff=0)
-        self.MenuBar.add_cascade(label="Insert", menu=self.ImportMenu)
+        self.MenuBar.add_cascade(label="Import", menu=self.ImportMenu)
+            # Palette Import
         self.ImportMenu.add_command(label="Image as Palette", command=exit)
         self.ImportMenu.add_command(label="Text File as Palette", command=exit)
-        self.ImportMenu.add_separator()
-        self.ImportMenu.add_command(label="Random Color", command=self.add_random_color)
-        self.ImportMenu.add_command(label="Random Palette", command=exit)
 
+        # Export Menu
         self.ExportMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="Export", menu=self.ExportMenu)
+            # History Export
+        self.ExportMenu.add_command(label="History as Text File", command=exit)
+        self.ExportMenu.add_command(label="History as Image", command=exit)
+        self.ExportMenu.add_separator()
+            # Palette Export
         self.ExportMenu.add_command(label="Palette as Text File", command=exit)
         self.ExportMenu.add_command(label="Palette as Image", command=exit)
+
+        # About Menu
+        self.AboutMenu = Menu(self.MenuBar, tearoff=0)
+        self.MenuBar.add_cascade(label="About", menu=self.AboutMenu)
+        self.AboutMenu.add_command(label="Info")
+        self.AboutMenu.add_command(label="README")
 
 
         # --- Bottom Toolbar --- #
