@@ -506,7 +506,7 @@ class MainWindow:
 
     # Save current palette to a save file
     def save_palette(self):
-        if self.does_save_file_exist():
+        if self.does_save_file_exist(self.savefile_name):
             self.palette_to_text("w")
         else:
             self.palette_to_text("x") # Create a fresh save file if there isn't one in the directory
@@ -525,9 +525,9 @@ class MainWindow:
         file.write(str(results))
         file.close()
 
-    def does_save_file_exist(self):
+    def does_save_file_exist(self, name: str):
         try:
-            with open("palettes.txt", "r") as f:
+            with open(name, "r") as f:
                 print("Found save file")
                 return True
         except:
@@ -536,8 +536,9 @@ class MainWindow:
 
     # Load saved palettes from a save file on program launch
     def load_palettes_from_file(self):
-        if self.does_save_file_exist():
-            file = open("palettes.txt", "r")
+        savefile_name = self.savefile_name
+        if self.does_save_file_exist(savefile_name):
+            file = open(savefile_name, "r")
 
             for line in file.readlines(): # read lines from text file, each palette is a separate line
                 palette_info = ast.literal_eval(line) # convert string representation of a list into actual list of colors
@@ -551,6 +552,16 @@ class MainWindow:
             print(self.get_palettes())
         else:
             pass
+
+    # Load user preferences
+    def load_config(self):
+        if self.does_save_file_exist("config.txt"):
+            ...
+            # load config file
+        else:
+            ...
+            # create new config file
+
 
     # Display palette rename menu
     def show_rename_menu(self):
