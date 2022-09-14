@@ -18,8 +18,10 @@ class MainWindow:
         self.root.config(bg="#212024")
 
         # Variables
+        self.HistoryMaster = None
+        self.PaletteMaster = None
         self.ColorButton = None
-        self.picked_color = None
+        self.picked_color: tuple = ()
         self.context = ""
         self.on_top = False
         self.opacity_value = StringVar(self.root)
@@ -62,6 +64,7 @@ class MainWindow:
         self.FileMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
         self.FileMenu.add_checkbutton(label="Load Save File on Start", variable=self.autoload_savefile)
+        self.FileMenu.add_command(label="Reset Config File", command=exit)
         self.FileMenu.add_separator()
         self.FileMenu.add_command(label="Exit", command=exit)
 
@@ -76,12 +79,9 @@ class MainWindow:
         self.PaletteToolMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="Palettes", menu=self.PaletteToolMenu)
             # General
-        self.PaletteToolMenu.add_command(label="Save All Palettes", command=exit)
-        self.PaletteToolMenu.add_command(label="Reload Save File", command=exit)
+        self.PaletteToolMenu.add_command(label="Save All Palettes", command=self.save_palette)
+        self.PaletteToolMenu.add_command(label="Reload Save File", command=self.reload_palettes)
         self.PaletteToolMenu.add_separator()
-        self.PaletteToolMenu.add_command(label="Clear History", command=exit)
-        self.PaletteToolMenu.add_command(label="Clear Palette", command=exit)
-        self.PaletteToolMenu.add_command(label="Clear All Palettes", command=exit)
 
         # Import Menu
         self.ImportMenu = Menu(self.MenuBar, tearoff=0)
@@ -376,6 +376,9 @@ class MainWindow:
                                        command=self.delete_palette)
         self.PaletteDelButton.grid(row=0, column=0, sticky="NW")
 
+        self.PaletteToolMenu.add_command(label="Clear History", command=self.HistoryMaster.clear_history)
+        self.PaletteToolMenu.add_command(label="Clear Palette", command=self.PaletteMaster.clear_history)
+
 
         # --- GUI Initialization --- #
 
@@ -536,22 +539,31 @@ class MainWindow:
 
     # Load saved palettes from a save file on program launch
     def load_palettes_from_file(self):
-        savefile_name = self.savefile_name
-        if self.does_save_file_exist(savefile_name):
-            file = open(savefile_name, "r")
+        if self.does_save_file_exist(self.savefile_name):
+            file = open(self.savefile_name, "r")
 
-            for line in file.readlines(): # read lines from text file, each palette is a separate line
-                palette_info = ast.literal_eval(line) # convert string representation of a list into actual list of colors
-                new_palette = self.add_palette()
-                self.palettes[-1].name = palette_info[0]
-                self.palettes[-1].colors = palette_info[1]
-                self.PaletteMenu.config(values=self.get_palettes())
+            lines = file.readlines()
+            if len(lines) > 0:
+                for line in lines: # read lines from text file, each palette is a separate line
+                    palette_info = ast.literal_eval(line) # convert string representation of a list into actual list of colors
+                    new_palette = self.add_palette()
+                    self.palettes[-1].name = palette_info[0]
+                    self.palettes[-1].colors = palette_info[1]
+                    self.PaletteMenu.config(values=self.get_palettes())
 
-            self.selected_palette.set(self.palettes[0].name)
-            self.on_palette_changed_event()
-            print(self.get_palettes())
+                self.selected_palette.set(self.palettes[0].name)
+                self.on_palette_changed_event()
+                print(self.get_palettes())
         else:
             pass
+
+    # Reload save file again
+    # Dangerous: will clear newly created unsaved palettes
+    def reload_palettes(self):
+        self.PaletteMaster.clear_history()
+        self.palettes = []
+        self.palettes.append(Palette("Temporary Palette", []))
+        self.load_palettes_from_file()
 
     # Load user preferences
     def load_config(self):
