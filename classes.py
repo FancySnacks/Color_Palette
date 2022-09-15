@@ -49,7 +49,7 @@ class MainWindow:
         self.DEFAULT_SETTINGS = {"AutoLoadSaveFile":"True",
                               "PaletteSaveFileDir":f'{self.savefile_dir}',
                               "ConfigFileDir":f'{self.configfile_dir}'}
-        self.user_settings = None
+        self.user_settings = self.DEFAULT_SETTINGS
 
 
         # --- Main Container --- #
@@ -74,12 +74,6 @@ class MainWindow:
         # File Menu
         self.FileMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
-        self.toggle = BooleanVar(self.root)
-        self.toggle.set(True)
-        self.FileMenu.add_checkbutton(label="Load Save File on Start", variable=self.toggle, command=self.autoload_savefile_toggle)
-        self.FileMenu.add_command(label="Reset Config File", command=self.reset_config)
-        self.FileMenu.add_separator()
-        self.FileMenu.add_command(label="Exit", command=exit)
 
         # General TOol Menu
         self.ToolMenu = Menu(self.MenuBar, tearoff=0)
@@ -398,10 +392,19 @@ class MainWindow:
         # Display main window
         self.hex_user_entry.trace_add("write", self.hex_enter)
         self.rgb_user_entry.trace_add("write", self.rgb_enter)
+
         self.toggle_button_state()
         self.update_context("history")
         self.load_config()
         self.load_palettes_from_file()
+
+        self.toggle = BooleanVar(self.root)
+        self.toggle.set(True) if self.user_settings['AutoLoadSaveFile'] in ["true", "True", True] else self.toggle.set(False)
+        self.FileMenu.add_checkbutton(label="Load Save File on Start", variable=self.toggle, command=self.autoload_savefile_toggle)
+        self.FileMenu.add_command(label="Reset Config File", command=self.reset_config)
+        self.FileMenu.add_separator()
+        self.FileMenu.add_command(label="Exit", command=exit)
+
         self.root.mainloop()
 
 
