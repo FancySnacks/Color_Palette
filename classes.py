@@ -43,9 +43,6 @@ class MainWindow:
         self.current_palette = self.saved_palettes[0]
 
         # User Preferences
-        self.autoload_savefile = BooleanVar(self.root)
-        self.autoload_savefile.set(True)
-
         self.savefile_dir = "./save/palettes.txt"
         self.configfile_dir = "./save/config.txt"
 
@@ -77,8 +74,10 @@ class MainWindow:
         # File Menu
         self.FileMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
-        self.FileMenu.add_checkbutton(label="Load Save File on Start", variable=self.autoload_savefile)
-        self.FileMenu.add_command(label="Reset Config File", command=exit)
+        self.toggle = BooleanVar(self.root)
+        self.toggle.set(True)
+        self.FileMenu.add_checkbutton(label="Load Save File on Start", variable=self.toggle, command=self.autoload_savefile_toggle)
+        self.FileMenu.add_command(label="Reset Config File", command=self.reset_config)
         self.FileMenu.add_separator()
         self.FileMenu.add_command(label="Exit", command=exit)
 
@@ -554,7 +553,7 @@ class MainWindow:
 
     # Load saved palettes from a save file on program launch
     def load_palettes_from_file(self):
-        if self.autoload_savefile in [True, "True", "true"]:
+        if self.user_settings['AutoLoadSaveFile'] in [True, "true", "True"]:
             if self.does_save_file_exist(self.savefile_dir):
                 file = open(self.savefile_dir, "r")
 
@@ -624,11 +623,16 @@ class MainWindow:
         return (self.user_settings.get(setting_name).lower() in valid_values, self.user_settings.get(setting_name))
 
     def create_config_file(self):
-        print("Config file created")
         self.config_to_text()
-        config_file = open(self.configfile_dir, "x")
-        config_file.write(self.config_to_text())
+        config_file = None
+        try:
+            config_file = open(self.configfile_dir, "x")
+        except FileExistsError:
+            config_file = open(self.configfile_dir, "w")
+        finally:
+            config_file.write(self.config_to_text())
         config_file.close()
+        print("Config file created")
 
     # Convert user settings to string that can be inserted inside .txt file
     def config_to_text(self) -> str:
@@ -643,6 +647,12 @@ class MainWindow:
         self.user_settings = self.DEFAULT_SETTINGS
         self.create_config_file()
 
+    def change_setting(self, setting_name: str, value: str):
+        self.user_settings[setting_name] = value
+        self.create_config_file()
+
+    def autoload_savefile_toggle(self):
+        self.change_setting('AutoLoadSaveFile', "false" if self.user_settings['AutoLoadSaveFile'] in ["true", "True"] else "true")
 
     # Display palette rename menu
     def show_rename_menu(self):
