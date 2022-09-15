@@ -45,13 +45,14 @@ class MainWindow:
         # User Preferences
         self.autoload_savefile = BooleanVar(self.root)
         self.autoload_savefile.set(True)
-        self.savefile_name = "palettes.txt"
 
-        self.configfile_name = "config.txt"
+        self.savefile_dir = "./save/palettes.txt"
+        self.configfile_dir = "./save/config.txt"
+
         self.DEFAULT_SETTINGS = {"AutoLoadSaveFile":"True",
-                              "PaletteSaveFileDir":f'./{self.savefile_name}',
-                              "ConfigFileDir":f'./{self.configfile_name}'}
-        self.user_settings = self.DEFAULT_SETTINGS
+                              "PaletteSaveFileDir":f'{self.savefile_dir}',
+                              "ConfigFileDir":f'{self.configfile_dir}'}
+        self.user_settings = None
 
 
         # --- Main Container --- #
@@ -400,6 +401,7 @@ class MainWindow:
         self.rgb_user_entry.trace_add("write", self.rgb_enter)
         self.toggle_button_state()
         self.update_context("history")
+        self.load_config()
         self.load_palettes_from_file()
         self.root.mainloop()
 
@@ -522,7 +524,7 @@ class MainWindow:
 
     # Save current palette to a save file
     def save_palette(self):
-        if self.does_save_file_exist(self.savefile_name):
+        if self.does_save_file_exist(self.savefile_dir):
             self.palette_to_text("w")
         else:
             self.palette_to_text("x") # Create a fresh save file if there isn't one in the directory
@@ -530,7 +532,7 @@ class MainWindow:
     # Save palettes into a text file
     def palette_to_text(self, mode: str):
         results = ""
-        file = open("palettes.txt", mode)
+        file = open(self.savefile_dir, mode)
         if len(self.palettes) > 1:
             for palette in self.palettes:
                 if palette.name != "Temporary Palette":
@@ -552,23 +554,24 @@ class MainWindow:
 
     # Load saved palettes from a save file on program launch
     def load_palettes_from_file(self):
-        if self.does_save_file_exist(self.savefile_name):
-            file = open(self.savefile_name, "r")
+        if self.autoload_savefile in [True, "True", "true"]:
+            if self.does_save_file_exist(self.savefile_dir):
+                file = open(self.savefile_dir, "r")
 
-            lines = file.readlines()
-            if len(lines) > 0:
-                for line in lines: # read lines from text file, each palette is a separate line
-                    palette_info = ast.literal_eval(line) # convert string representation of a list into actual list of colors
-                    new_palette = self.add_palette()
-                    self.palettes[-1].name = palette_info[0]
-                    self.palettes[-1].colors = palette_info[1]
-                    self.PaletteMenu.config(values=self.get_palettes())
+                lines = file.readlines()
+                if len(lines) > 0:
+                    for line in lines: # read lines from text file, each palette is a separate line
+                        palette_info = ast.literal_eval(line) # convert string representation of a list into actual list of colors
+                        new_palette = self.add_palette()
+                        self.palettes[-1].name = palette_info[0]
+                        self.palettes[-1].colors = palette_info[1]
+                        self.PaletteMenu.config(values=self.get_palettes())
 
-                self.selected_palette.set(self.palettes[0].name)
-                self.on_palette_changed_event()
-                print(self.get_palettes())
-        else:
-            pass
+                    self.selected_palette.set(self.palettes[0].name)
+                    self.on_palette_changed_event()
+                    print(self.get_palettes())
+            else:
+                pass
 
     # Reload save file again
     # Dangerous: will clear newly created unsaved palettes
@@ -579,13 +582,66 @@ class MainWindow:
         self.load_palettes_from_file()
 
     # Load user preferences
-    def load_config(self):
-        if self.does_save_file_exist("config.txt"):
-            ...
-            # load config file
+    def load_config(self) -> dict[str:str]:
+        if self.does_save_file_exist(self.configfile_dir):
+            settings = "{"
+            with open(self.configfile_dir, "r") as file:
+                file_contents: list[str] = file.readlines()
+                for line in file_contents:
+                    settings += line + ","
+                settings = settings[0:-1:]
+                settings += "}"
+                settings.replace("\n", "").strip()
+            self.user_settings = ast.literal_eval(settings)
+        else:
+            # create new config file
+            self.reset_config()
+        self.set_config_settings()
+
+    def set_config_settings(self):
+        self.autoload_savefile = self.load_setting_value("AutoLoadSaveFile", ["true", "false"])
+        self.savefile_dir = self.load_setting_value("PaletteSaveFileDir", [])
+        self.configfile_dir = self.load_setting_value("ConfigFileDir", [])
+
+    def does_setting_exist(self, setting_name: str):
+        return setting_name in self.DEFAULT_SETTINGS.keys()
+
+    def load_setting_value(self, setting_name: str, valid_values: list[str]):
+        if self.does_setting_exist(setting_name):
+            # If list is empty it means the value has unlimited options and doesn't have to be checked
+            if list == []:
+                return self.DEFAULT_SETTINGS.get(setting_name)
+            else:
+                if self.check_setting_value(setting_name, valid_values)[0]:
+                    return self.check_setting_value(setting_name, valid_values)[1]
+                else:
+                    return self.DEFAULT_SETTINGS.get(setting_name)
         else:
             ...
-            # create new config file
+            # setting not in dictionary / setting doesnt exist / don't load it
+
+    def check_setting_value(self, setting_name: str, valid_values: list[str]) -> tuple[bool, str]:
+        return (self.user_settings.get(setting_name).lower() in valid_values, self.user_settings.get(setting_name))
+
+    def create_config_file(self):
+        print("Config file created")
+        self.config_to_text()
+        config_file = open(self.configfile_dir, "x")
+        config_file.write(self.config_to_text())
+        config_file.close()
+
+    # Convert user settings to string that can be inserted inside .txt file
+    def config_to_text(self) -> str:
+        settings: dict = self.user_settings if self.user_settings != None else self.DEFAULT_SETTINGS
+        str_settings = ""
+        for value in settings.items():
+            str_settings += f'"{value[0]}":"{value[1]}"' + "\n"
+        return str_settings
+
+    # Reset user preferences to default values
+    def reset_config(self):
+        self.user_settings = self.DEFAULT_SETTINGS
+        self.create_config_file()
 
 
     # Display palette rename menu
