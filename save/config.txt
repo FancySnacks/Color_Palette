@@ -1,0 +1,3 @@
+"AutoLoadSaveFile":"True"
+"PaletteSaveFileDir":"./save/palettes.txt"
+"ConfigFileDir":"./save/config.txt"
