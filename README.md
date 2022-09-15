@@ -19,17 +19,15 @@ This program also allows you for quick export of the saved color palettes as .jp
 * Window can stay on top of other programs
 
 ## Tech  
-Python, Tkinter, Pyperclip  
+Python, Tkinter, ttk, Pyperclip, ast  
   
 ## TO-DO List    
 [ ] Show color shades when of a selected color    
 [ ] Generate color palette from uploaded image  
 [ ] Copy color from any website, app or image via eyedropper tool  
-[ ] Generate random colors or color palettes  
 [ ] Export color palettes as .jpegs, for use in image editing software  
 [ ] Export color palettes as .txt files  
 [ ] REDO / UNDO options  
-[ ] Toggle option for auto-loading from save file  
   
 # License  
 GNU GENERAL PUBLIC LICENSE  
