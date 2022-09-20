@@ -443,7 +443,7 @@ class MainWindow:
 
     # Add picked color to the current palette
     def add_color_to_palette(self):
-        self.PaletteMaster.add_to_palette(self.ColorButton.current_color)
+        self.PaletteMaster.add_to_palette((self.ColorButton.current_color[0], self.ColorButton.current_color[1], "Name"))
         self.update_context("palette")
 
     # Remove color from current palette
@@ -732,7 +732,7 @@ class HistoryMaster():
                 self.remove_color(0)
                 self.reset(False)
             self.colors.append(color)
-            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, False, "")
+            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, self.window_ref.current_palette, color, len(self.color_buttons), self.current_column, self.current_row, False, "")
             self.color_buttons.append(new_color)
 
             if self.current_column == 0:
@@ -791,7 +791,16 @@ class HistoryMaster():
     def add_to_palette(self, color):
         if color not in self.colors:
             self.colors.append(color)
-            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, True, "Test")
+            new_color = History_ColorButton(self.window_root,
+                                            self.window_ref,
+                                            self.List1,
+                                            self.window_ref.current_palette,
+                                            (color[0], color[1]),
+                                            len(self.color_buttons),
+                                            self.current_column,
+                                            self.current_row,
+                                            True,
+                                            color[2])
             new_color.context = "palette"
             self.window_ref.update_context("palette")
             self.color_buttons.append(new_color)
@@ -805,7 +814,7 @@ class HistoryMaster():
                 self.current_row += 1
 
         if color not in self.window_ref.current_palette.colors:
-            self.window_ref.current_palette.colors.append(color)
+            self.window_ref.current_palette.colors.append((color[0], color[1], "Name"))
 
     def remove_from_palette(self, color):
         if color in self.colors:
@@ -822,9 +831,10 @@ class HistoryMaster():
             self.color_buttons = []
 
             for color in self.colors:
-                new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, color,
+                new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, self.window_ref.current_palette,
+                                                 color,
                                                  len(self.color_buttons), self.current_column, self.current_row,
-                                                 True)
+                                                 True, "")
                 new_button.context = "palette"
                 self.color_buttons.append(new_button)
                 if self.current_column == 0:
@@ -933,7 +943,7 @@ class History_ColorButton():
     def __init__(self,
                  root: Tk,
                  window_ref: MainWindow,
-                 parent_widget: HistoryMaster,
+                 parent_widget,
                  palette_ref: Palette,
                  color: (str, str),
                  index: int,
@@ -988,10 +998,9 @@ class History_ColorButton():
         self.MainFrame.destroy()
         del self
 
-    def save_color_name(self):
+    def save_color_name(self, *args):
         color_info = self.palette_ref.colors[self.index]
-        print(color_info)
-        pass
+        self.palette_ref.colors[self.index] = (color_info[0], color_info[1], self.ColorName.get())
 
 
 
