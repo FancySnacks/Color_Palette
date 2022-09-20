@@ -441,7 +441,7 @@ class MainWindow:
         else:
             self.DelColorButton.config(text="❌ Remove (⌛)")
 
-    # Add color to current palette
+    # Add picked color to the current palette
     def add_color_to_palette(self):
         self.PaletteMaster.add_to_palette(self.ColorButton.current_color)
         self.update_context("palette")
@@ -732,7 +732,7 @@ class HistoryMaster():
                 self.remove_color(0)
                 self.reset(False)
             self.colors.append(color)
-            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, False)
+            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, False, "")
             self.color_buttons.append(new_color)
 
             if self.current_column == 0:
@@ -791,7 +791,7 @@ class HistoryMaster():
     def add_to_palette(self, color):
         if color not in self.colors:
             self.colors.append(color)
-            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, True)
+            new_color = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, True, "Test")
             new_color.context = "palette"
             self.window_ref.update_context("palette")
             self.color_buttons.append(new_color)
@@ -921,11 +921,31 @@ class ColorButton():
 
 
 
+# Saved palette
+class Palette:
+    def __init__(self, name: str, colors):
+        self.name = name
+        self.colors = colors
+
+
+
 class History_ColorButton():
-    def __init__(self, root, window_ref, parent_widget, color, index, column, row, b_palette):
+    def __init__(self,
+                 root: Tk,
+                 window_ref: MainWindow,
+                 parent_widget: HistoryMaster,
+                 palette_ref: Palette,
+                 color: (str, str),
+                 index: int,
+                 column: int,
+                 row: int,
+                 b_palette: bool,
+                 color_name: str):
+
         self.window_root = root
         self.window_ref = window_ref
         self.parent_widget = parent_widget
+        self.palette_ref = palette_ref
         self.index = index
         self.column = column
         self.row = row
@@ -934,7 +954,7 @@ class History_ColorButton():
 
         self.color = color
         self.ColorName = StringVar(self.window_root)
-        self.ColorName.set("Name")
+        self.ColorName.set(color_name)
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2)
         self.MainFrame.grid(row=row, column=column)
@@ -956,6 +976,11 @@ class History_ColorButton():
             self.ColorButton.grid(row=1)
             self.HEXEntry.grid(row=2)
 
+            self.ColorName.trace_add('write', self.save_color_name)
+
+    def save_color_name(self):
+
+
 
     # Functions
 
@@ -965,14 +990,6 @@ class History_ColorButton():
     def remove_self(self):
         self.MainFrame.destroy()
         del self
-
-
-
-# Saved palette
-class Palette:
-    def __init__(self, name: str, colors):
-        self.name = name
-        self.colors = colors
 
 
 
