@@ -1,6 +1,6 @@
 from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
 from tkinter import *
-from tkinter import colorchooser
+from tkinter import colorchooser, filedialog
 from tkinter import ttk
 import pyperclip
 import ast
@@ -105,7 +105,7 @@ class MainWindow:
         self.ExportMenu.add_command(label="History as Image", command=exit)
         self.ExportMenu.add_separator()
             # Palette Export
-        self.ExportMenu.add_command(label="Palette as Text File", command=exit)
+        self.ExportMenu.add_command(label="Palette as Text File", command=self.save_palette_to_txt)
         self.ExportMenu.add_command(label="Palette as Image", command=exit)
 
         # About Menu
@@ -699,6 +699,25 @@ class MainWindow:
     def add_random_color(self):
         random_color = random_rgb()
         self.update_color_values(rgb_to_hex(random_color), random_color, "history")
+
+    # Save palette to a file
+    def save_palette_to_txt(self):
+        file = None
+        try:
+            file = filedialog.asksaveasfile("w",
+                                            defaultextension=".txt",
+                                            filetypes=(("Text File (*.txt)", "*.txt"), ("All Files", "*.*")))
+        except EXCEPTION as e:
+            print(e)
+        else:
+            file_contents = f'[{self.current_palette.name}]' + '\n'
+            for palette in self.current_palette.colors:
+                file_contents += f'{palette}' + '\n'
+            file.write(file_contents)
+        finally:
+            if file:
+                file.close()
+
 
 
 # Stores colors
