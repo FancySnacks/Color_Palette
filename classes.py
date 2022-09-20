@@ -689,9 +689,10 @@ class MainWindow:
     # Check if input is a valid RGB value when user types something in RGB entry widget
     def rgb_enter(self, *args):
         if self.manual_entry:
-            rgb = ast.literal_eval(self.rgb_user_entry.get())
-            if is_rgb_color(rgb):
-                self.ColorButton.update_color((rgb, rgb_to_hex(rgb)), "history")
+            print("jhs")
+            #rgb = ast.literal_eval(self.rgb_user_entry.get())
+            #if is_rgb_color(rgb):
+                #self.ColorButton.update_color((rgb, rgb_to_hex(rgb)), "history")
         else:
             self.manual_entry = True
 
@@ -750,7 +751,6 @@ class HistoryMaster():
     def remove_color(self, index):
         self.colors.pop(index)
         self.color_buttons.pop(index)
-        self.window_ref.current_palette.colors.pop(index)
         self.update_indexes()
 
     def update_indexes(self):
@@ -768,7 +768,7 @@ class HistoryMaster():
             child.destroy()
         self.color_buttons = []
         for color in self.colors:
-            new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, color, len(self.color_buttons), self.current_column, self.current_row, b_palette)
+            new_button = History_ColorButton(self.window_root, self.window_ref, self.List1, self.window_ref.current_palette, color, len(self.color_buttons), self.current_column, self.current_row, b_palette, "Name")
             if b_palette:
                 new_button.context = "palette"
             self.color_buttons.append(new_button)
@@ -790,7 +790,7 @@ class HistoryMaster():
 
     def add_to_palette(self, color):
         if color not in self.colors:
-            self.colors.append(color)
+            self.colors.append((color[0], color[1], color[2]))
             new_color = History_ColorButton(self.window_root,
                                             self.window_ref,
                                             self.List1,
@@ -821,6 +821,7 @@ class HistoryMaster():
             index = self.colors.index(color)
             self.List1.winfo_children()[index].destroy()
             self.remove_color(index)
+            self.window_ref.current_palette.colors.pop(index)
             self.update_indexes()
 
             self.current_row = 0
@@ -848,7 +849,7 @@ class HistoryMaster():
             self.set_default("palette")
 
     def remove_from_history(self, color):
-        if color in self.colors:
+        if (color[0], color[1]) in self.colors:
             index = self.colors.index(color)
             self.List1.winfo_children()[index].destroy()
             self.remove_color(index)
@@ -964,7 +965,6 @@ class History_ColorButton():
 
         self.color = color
         self.ColorName = StringVar(self.window_root)
-        self.ColorName.set(color_name)
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2)
         self.MainFrame.grid(row=row, column=column)
@@ -986,13 +986,16 @@ class History_ColorButton():
             self.ColorButton.grid(row=1)
             self.HEXEntry.grid(row=2)
 
+            self.ColorName.set(color_name or  self.palette_ref.colors[self.index][2])
+
             self.ColorName.trace_add('write', self.save_color_name)
 
 
 
     # Functions
     def change_main_color(self):
-        self.window_ref.ColorButton.update_color(self.color, "palette" if self.b_palette else "history")
+        self.window_ref.ColorButton.update_color((self.color[0], self.color[1], self.ColorName.get()),
+                                                 "palette" if self.b_palette else "history")
 
     def remove_self(self):
         self.MainFrame.destroy()
