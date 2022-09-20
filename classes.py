@@ -430,7 +430,7 @@ class MainWindow:
         self.HexCopyButton.color_value = hex_value
         self.RGBCopyButton.color_value = f_rgb_value
 
-        self.HistoryMaster.add_to_history((rgb_value, hex_value)) # Add new color to the history
+        self.HistoryMaster.add_to_history((rgb_value, hex_value, '')) # Add new color to the history
 
     # Update the 'remove button' context so in future it will remove color from either color history or current palette >
     # depending on where the color button you've clicked on is located
@@ -689,10 +689,9 @@ class MainWindow:
     # Check if input is a valid RGB value when user types something in RGB entry widget
     def rgb_enter(self, *args):
         if self.manual_entry:
-            print("jhs")
-            #rgb = ast.literal_eval(self.rgb_user_entry.get())
-            #if is_rgb_color(rgb):
-                #self.ColorButton.update_color((rgb, rgb_to_hex(rgb)), "history")
+            rgb = ast.literal_eval(self.rgb_user_entry.get())
+            if is_rgb_color(rgb):
+                self.ColorButton.update_color((rgb, rgb_to_hex(rgb)), "history")
         else:
             self.manual_entry = True
 
@@ -849,7 +848,7 @@ class HistoryMaster():
             self.set_default("palette")
 
     def remove_from_history(self, color):
-        if (color[0], color[1]) in self.colors:
+        if color in self.colors:
             index = self.colors.index(color)
             self.List1.winfo_children()[index].destroy()
             self.remove_color(index)
@@ -859,16 +858,18 @@ class HistoryMaster():
     def set_default(self, context):
         try:
             self.window_ref.update_color_values(self.colors[0][1], self.colors[0][0], context)
-            self.window_ref.picked_color = (self.colors[0][1], self.colors[0][0])
+            self.window_ref.picked_color = (self.colors[0][1], self.colors[0][0], "")
             self.window_ref.ColorButton.ColorButton.config(bg=str(self.colors[0][1]))
-            self.window_ref.ColorButton.current_color = (self.colors[0][0], self.colors[0][1])
+            self.window_ref.ColorButton.current_color = (self.colors[0][0], self.colors[0][1], "")
             self.window_ref.previous_hex = str(self.colors[0][1])
+            self.manual_entry = False
         except:
             self.window_ref.update_color_values("#c72231", "199, 34, 49", context)
-            self.window_ref.picked_color = ("#c72231", "199, 34, 49")
+            self.window_ref.picked_color = ("#c72231", "199, 34, 49", "")
             self.window_ref.ColorButton.ColorButton.config(bg="#c72231")
-            self.window_ref.ColorButton.current_color = ("#c72231", "199, 34, 49")
+            self.window_ref.ColorButton.current_color = ("#c72231", "199, 34, 49", "")
             self.window_ref.previous_hex = "#c72231"
+            self.manual_entry = False
             if context != "history":
                 self.window_ref.update_context("history")
 
@@ -905,7 +906,7 @@ class ColorButton():
         self.ColorName.set("Name")
 
         self.DEFAULT_COLOR = "#c72231"
-        self.current_color = ("199, 34, 49", self.DEFAULT_COLOR)
+        self.current_color = ("199, 34, 49", self.DEFAULT_COLOR, '')
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5)
         self.MainFrame.grid(sticky="W")
