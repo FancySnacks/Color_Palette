@@ -978,18 +978,20 @@ class History_ColorButton():
 
             self.ColorName.trace_add('write', self.save_color_name)
 
-    def save_color_name(self):
-
 
 
     # Functions
-
     def change_main_color(self):
         self.window_ref.ColorButton.update_color(self.color, "palette" if self.b_palette else "history")
 
     def remove_self(self):
         self.MainFrame.destroy()
         del self
+
+    def save_color_name(self):
+        color_info = self.palette_ref.colors[self.index]
+        print(color_info)
+        pass
 
 
 
