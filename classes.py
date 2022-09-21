@@ -101,7 +101,7 @@ class MainWindow:
         self.ExportMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="Export", menu=self.ExportMenu)
             # History Export
-        self.ExportMenu.add_command(label="History as Text File", command=exit)
+        self.ExportMenu.add_command(label="History as Text File", command=self.save_history_to_txt)
         self.ExportMenu.add_command(label="History as Image", command=exit)
         self.ExportMenu.add_separator()
             # Palette Export
@@ -700,9 +700,17 @@ class MainWindow:
         random_color = random_rgb()
         self.update_color_values(rgb_to_hex(random_color), random_color, "history")
 
-    # Save palette to a file
+    # Save palette to a text file
     def save_palette_to_txt(self):
+        self.save_as_txt("palette")
+
+    # Save history to a text file
+    def save_history_to_txt(self):
+      self.save_as_txt("history")
+
+    def save_as_txt(self, context: str):
         file = None
+        palette_ref = self.current_palette.colors if context == "palette" else self.HistoryMaster.colors
         try:
             file = filedialog.asksaveasfile("w",
                                             defaultextension=".txt",
@@ -710,9 +718,12 @@ class MainWindow:
         except EXCEPTION as e:
             print(e)
         else:
-            file_contents = f'[{self.current_palette.name}]' + '\n'
-            for palette in self.current_palette.colors:
-                file_contents += f'{palette}' + '\n'
+            file_contents = f'[{self.current_palette.name}]' + '\n'  if context == "palette" \
+                else 'Color History' + '\n'
+            # Each line represents a single color
+            # Format: ((rgb: int), 'HEX: str', 'ColorName: str')
+            for color in palette_ref:
+                file_contents += f'{color}' + '\n'
             file.write(file_contents)
         finally:
             if file:
