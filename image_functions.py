@@ -1,4 +1,6 @@
-# Original code: https://kylermintah.medium.com/coding-a-color-palette-generator-in-python-inspired-by-procreate-5x-b10df37834ae
+# Original code by Kyler Mintah
+# https://www.kylermintah.me/
+# Source: https://kylermintah.medium.com/coding-a-color-palette-generator-in-python-inspired-by-procreate-5x-b10df37834ae
 # Edited for this program needs, I do not claim the ownership of this script
 
 
