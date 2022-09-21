@@ -634,16 +634,16 @@ class MainWindow:
         return (self.user_settings.get(setting_name).lower() in valid_values, self.user_settings.get(setting_name))
 
     def create_config_file(self):
-        self.config_to_text()
         config_file = None
         try:
             config_file = open(self.configfile_dir, "x")
-        except FileExistsError:
+        except Exception:
             config_file = open(self.configfile_dir, "w")
         finally:
-            config_file.write(self.config_to_text())
-        config_file.close()
-        print("Config file created")
+            if config_file:
+                config_file.write(self.config_to_text())
+                config_file.close()
+                print("Config file created")
 
     # Convert user settings to string that can be inserted inside .txt file
     def config_to_text(self) -> str:
