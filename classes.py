@@ -1,3 +1,11 @@
+# Color Palette
+# Created by Adrian Urbaniak / A-Rave-Mistake (2022)
+# ----------
+# Repo link: https://github.com/A-Rave-Mistake/Color_Palette
+# Using GNU General Public License v3.0 - More info can be found in the 'LICENSE.md' file
+
+
+
 from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
 from tkinter import *
 from tkinter import colorchooser, filedialog

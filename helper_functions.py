@@ -1,3 +1,11 @@
+# Color Palette
+# Created by Adrian Urbaniak / A-Rave-Mistake (2022)
+# ----------
+# Repo link: https://github.com/A-Rave-Mistake/Color_Palette
+# Using GNU General Public License v3.0 - More info can be found in the 'LICENSE.md' file
+
+
+
 # check if string parameter is a valid HEX value
 def is_hex_color(color: str) -> bool:
     import re
