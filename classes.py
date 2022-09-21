@@ -7,6 +7,7 @@
 
 
 from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
+from image_functions import get_colors
 from tkinter import *
 from tkinter import colorchooser, filedialog
 from tkinter import ttk
@@ -102,7 +103,7 @@ class MainWindow:
         self.ImportMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="Import", menu=self.ImportMenu)
             # Palette Import
-        self.ImportMenu.add_command(label="Image as Palette", command=exit)
+        self.ImportMenu.add_command(label="Image as Palette", command=self.browse_for_images)
         self.ImportMenu.add_command(label="Text File as Palette", command=exit)
 
         # Export Menu
@@ -737,6 +738,27 @@ class MainWindow:
             if file:
                 file.close()
 
+    def browse_for_images(self):
+        image = None
+        try:
+            image = filedialog.askopenfile(defaultextension="*.png",
+                                            filetypes=(("PNG Image", "*.png"),
+                                                        ("JPEG Image", "*.jpg"),
+                                                        ("BMP Image", "*.bmp"),
+                                                        ("WEBP Image", "*.webp")))
+        except EXCEPTION as e:
+            print(e)
+        else:
+            self.palette_from_image(get_colors(image.name))
+        finally:
+            image.close() if image else ...
+
+    # Generate color palette from selected image
+    def palette_from_image(self, colors):
+        self.PaletteMaster.clear_history()
+        self.add_palette()
+        for color in colors:
+            self.PaletteMaster.add_to_palette((color[0], rgb_to_hex(color[0]),'Name'))
 
 
 # Stores colors
@@ -837,7 +859,7 @@ class HistoryMaster():
                                             self.current_column,
                                             self.current_row,
                                             True,
-                                            color[2])
+                                            color[2] or '')
             new_color.context = "palette"
             self.window_ref.update_context("palette")
             self.color_buttons.append(new_color)
