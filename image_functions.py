@@ -15,12 +15,17 @@ from matplotlib import gridspec
 
 def get_colors(img_path):
     img = PIL.Image.open(img_path)
+    print(extract_colors(img))
     return extract_colors(img)
+
+def palette_to_image(palette_colors: tuple, file):
+    color_palette = render_color_palette(palette_colors, file)
+    #overlay_palette(color_palette)
 
 def study_image(image_path):
     img = PIL.Image.open(image_path)
     colors = extract_colors(img)
-    color_palette = render_color_palette(colors)
+    color_palette = render_color_palette(colors, None)
     overlay_palette(color_palette)
 
 def extract_colors(img):
@@ -29,7 +34,7 @@ def extract_colors(img):
   colors, pixel_count = extcolors.extract_from_image(img, tolerance, limit)
   return colors
 
-def render_color_palette(colors):
+def render_color_palette(colors, file):
   size = 100
   columns = 6
   width = int(min(len(colors), columns) * size)
@@ -40,7 +45,7 @@ def render_color_palette(colors):
       x = int((idx % columns) * size)
       y = int(math.floor(idx / columns) * size)
       canvas.rectangle([(x, y), (x + size - 1, y + size - 1)], fill=color[0])
-  result.save("img1.png","PNG")
+  result.save(file.name)
   return result
 
 def overlay_palette(color_palette):

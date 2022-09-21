@@ -7,7 +7,7 @@
 
 
 from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
-from image_functions import get_colors
+from image_functions import get_colors, palette_to_image
 from tkinter import *
 from tkinter import colorchooser, filedialog
 from tkinter import ttk
@@ -115,7 +115,7 @@ class MainWindow:
         self.ExportMenu.add_separator()
             # Palette Export
         self.ExportMenu.add_command(label="Palette as Text File", command=self.save_palette_to_txt)
-        self.ExportMenu.add_command(label="Palette as Image", command=exit)
+        self.ExportMenu.add_command(label="Palette as Image", command=self.choose_img_save_location)
 
         # About Menu
         self.AboutMenu = Menu(self.MenuBar, tearoff=0)
@@ -759,6 +759,29 @@ class MainWindow:
         self.add_palette()
         for color in colors:
             self.PaletteMaster.add_to_palette((color[0], rgb_to_hex(color[0]),'Name'))
+
+    def choose_img_save_location(self):
+        image = None
+        if len(self.current_palette.colors) > 0:
+            try:
+                image = filedialog.asksaveasfile(defaultextension="*.png",
+                                                 filetypes=(("PNG Image", "*.png"),
+                                                            ("JPEG Image", "*.jpg"),
+                                                            ("BMP Image", "*.bmp"),
+                                                            ("WEBP Image", "*.webp")))
+            except EXCEPTION as e:
+                print(e)
+            else:
+                self.palette_to_image(image)
+            finally:
+                image.close() if image else ...
+
+    # Convert current palette to an image
+    def palette_to_image(self, file_ref: object):
+        colors = []
+        for color in self.current_palette.colors:
+            new = colors.append(((int(color[0][0]), int(color[0][1]), int(color[0][2])), 3000))
+        palette_to_image(tuple(colors), file_ref)
 
 
 # Stores colors
