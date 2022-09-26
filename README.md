@@ -23,10 +23,7 @@ Python, Tkinter, ttk, Pyperclip, ast
   
 ## TO-DO List    
 [ ] Show color shades when of a selected color    
-[ ] Generate color palette from uploaded image  
-[ ] Copy color from any website, app or image via eyedropper tool  
-[ ] Export color palettes as .jpegs, for use in image editing software  
-[ ] Export color palettes as .txt files  
+[ ] Copy color from any website, app or image via eyedropper tool   
 [ ] REDO / UNDO options  
   
 # License  
