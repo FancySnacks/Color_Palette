@@ -55,10 +55,14 @@ class MainWindow:
         # User Preferences
         self.savefile_dir = "./save/palettes.txt"
         self.configfile_dir = "./save/config.txt"
+        self.eyedropper_copy_key = "<e>"
+        self.eyedropper_cancel_key = "<q>"
 
         self.DEFAULT_SETTINGS = {"AutoLoadSaveFile":"True",
-                              "PaletteSaveFileDir":f'{self.savefile_dir}',
-                              "ConfigFileDir":f'{self.configfile_dir}'}
+                                "PaletteSaveFileDir":f'{self.savefile_dir}',
+                                "ConfigFileDir":f'{self.configfile_dir}',
+                                "EyedropperColorCopyKey":"e",
+                                "EyedropperCancelKey":"q"}
         self.user_settings = self.DEFAULT_SETTINGS
 
 
@@ -615,6 +619,9 @@ class MainWindow:
         self.autoload_savefile = self.load_setting_value("AutoLoadSaveFile", ["true", "false"])
         self.savefile_dir = self.load_setting_value("PaletteSaveFileDir", [])
         self.configfile_dir = self.load_setting_value("ConfigFileDir", [])
+        self.eyedropper_copy_key = self.load_setting_value("EyedropperColorCopyKey", [])
+        self.eyedropper_cancel_key = self.load_setting_value("EyedropperCancelKey", [])
+        print(self.eyedropper_cancel_key)
 
     def does_setting_exist(self, setting_name: str):
         return setting_name in self.DEFAULT_SETTINGS.keys()
@@ -622,15 +629,15 @@ class MainWindow:
     def load_setting_value(self, setting_name: str, valid_values: list[str]):
         if self.does_setting_exist(setting_name):
             # If list is empty it means the value has unlimited options and doesn't have to be checked
-            if list == []:
-                return self.DEFAULT_SETTINGS.get(setting_name)
+            if len(valid_values) < 1:
+                return self.check_setting_value(setting_name, valid_values)[1]
             else:
                 if self.check_setting_value(setting_name, valid_values)[0]:
                     return self.check_setting_value(setting_name, valid_values)[1]
                 else:
                     return self.DEFAULT_SETTINGS.get(setting_name)
         else:
-            ...
+            pass
             # setting not in dictionary / setting doesnt exist / don't load it
 
     def check_setting_value(self, setting_name: str, valid_values: list[str]) -> tuple[bool, str]:
@@ -787,9 +794,9 @@ class MainWindow:
 
     def eyedropper(self):
         self.eyedropper_ref = Eyedropper(self)
-        self.root.bind('<e>', self.eyedropper_event_pick)
+        self.root.bind(self.eyedropper_copy_key, self.eyedropper_event_pick)
         self.root.bind('<Escape>', self.eyedropper_event_cancel)
-        self.root.bind('<q>', self.eyedropper_event_cancel)
+        self.root.bind(self.eyedropper_cancel_key, self.eyedropper_event_cancel)
         self.EyedropperButton.config(bg="#68727d", fg="#c5c6c7")
 
     def eyedropper_del(self):
@@ -798,7 +805,8 @@ class MainWindow:
 
     def eyedropper_event_pick(self, event):
         self.EyedropperButton.config(bg="#212024", fg="white")
-        self.eyedropper_ref.copy_color()
+        picked_color: tuple[int, int, int] = self.eyedropper_ref.copy_color()
+        self.ColorButton.update_color((picked_color, rgb_to_hex(picked_color), "Name"), "history")
         self.eyedropper_del()
 
     def eyedropper_event_cancel(self, event):
@@ -1211,4 +1219,5 @@ class Eyedropper:
         cursor_pos = self.pg.position()
         s = self.pg.screenshot(region=(cursor_pos[0] - 1, cursor_pos[1] - 1, 1, 1))
         s = self.np.array(s)
-        print(tuple(s[0, 0]))
+        color = tuple(s[0, 0])
+        return color
