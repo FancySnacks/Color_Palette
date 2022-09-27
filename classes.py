@@ -102,6 +102,7 @@ class MainWindow:
             # General
         self.PaletteToolMenu.add_command(label="Save All Palettes", command=self.save_palette)
         self.PaletteToolMenu.add_command(label="Reload Save File", command=self.reload_palettes)
+        self.PaletteToolMenu.add_command(label="History to Palette", command=self.history_to_palette)
         self.PaletteToolMenu.add_separator()
 
         # Import Menu
@@ -791,6 +792,11 @@ class MainWindow:
         for color in self.current_palette.colors:
             new = colors.append(((int(color[0][0]), int(color[0][1]), int(color[0][2])), 3000))
         palette_to_image(tuple(colors), file_ref)
+
+    # Copy all colors from history to a palette
+    def history_to_palette(self):
+        for color in self.HistoryMaster.colors:
+            self.PaletteMaster.add_to_palette((color[0], rgb_to_hex(color[0]), 'Name'))
 
     def eyedropper(self):
         self.eyedropper_ref = Eyedropper(self)
