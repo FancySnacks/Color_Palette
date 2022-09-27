@@ -32,6 +32,7 @@ class MainWindow:
         self.ColorButton = None
         self.picked_color: tuple = ()
         self.context = ""
+        self.eyedropper_ref = None
         self.on_top = False
         self.opacity_value = StringVar(self.root)
         self.opacity_value.set("100")
@@ -89,7 +90,7 @@ class MainWindow:
         self.MenuBar.add_cascade(label="Edit", menu=self.ToolMenu)
         self.ToolMenu.add_command(label="Random Color", command=self.add_random_color)
         self.ToolMenu.add_command(label="Random Palette", command=exit)
-        self.ToolMenu.add_command(label="Eyedropper", command=exit)
+        self.ToolMenu.add_command(label="Eyedropper", command=self.eyedropper)
 
         # Palette Tool Menu
         self.PaletteToolMenu = Menu(self.MenuBar, tearoff=0)
@@ -170,7 +171,8 @@ class MainWindow:
                                        font=("Lato", 9),
                                        text="🖊 Sample Color",
                                        fg="white",
-                                       bg="#212024")
+                                       bg="#212024",
+                                       command=self.eyedropper)
         self.EyedropperButton.grid(row=0, column=0, sticky="W")
 
         # Import Palette Button
@@ -783,6 +785,26 @@ class MainWindow:
             new = colors.append(((int(color[0][0]), int(color[0][1]), int(color[0][2])), 3000))
         palette_to_image(tuple(colors), file_ref)
 
+    def eyedropper(self):
+        self.eyedropper_ref = Eyedropper(self)
+        self.root.bind('<e>', self.eyedropper_event_pick)
+        self.root.bind('<Escape>', self.eyedropper_event_cancel)
+        self.root.bind('<q>', self.eyedropper_event_cancel)
+        self.EyedropperButton.config(bg="#68727d", fg="#c5c6c7")
+
+    def eyedropper_del(self):
+        del self.eyedropper_ref
+        self.eyedropper_ref = None
+
+    def eyedropper_event_pick(self, event):
+        self.EyedropperButton.config(bg="#212024", fg="white")
+        self.eyedropper_ref.copy_color()
+        self.eyedropper_del()
+
+    def eyedropper_event_cancel(self, event):
+        self.EyedropperButton.config(bg="#212024", fg="white")
+        self.eyedropper_del()
+
 
 # Stores colors
 # Is used both for color history and color palettes
@@ -1161,3 +1183,32 @@ class RenameMenu:
 
             self.root.destroy()
             del self
+
+
+
+# Eyedropper Tool
+class Eyedropper:
+    def __init__(self, parent):
+        import cv2 as cv2
+        import numpy as np
+        import pyautogui as pg
+
+        self.parent = parent
+        self.pg = pg
+        self.np = np
+        self.cv2 = cv2
+
+        self.size = 10
+
+    def copy_color(self):
+        pos = self.pg.position()
+        s = self.pg.screenshot(region=(pos[0] - self.size / 2, pos[1] - self.size / 2, self.size, self.size))
+        im = self.cv2.cvtColor(self.np.array(s), self.cv2.COLOR_RGB2BGR)
+        im = self.cv2.resize(im, (self.size * 10, self.size * 10), interpolation=self.cv2.INTER_AREA)
+        st = int((self.size * 10) / 2 - 5)
+        ed = int((self.size * 10) / 2 + 5)
+
+        cursor_pos = self.pg.position()
+        s = self.pg.screenshot(region=(cursor_pos[0] - 1, cursor_pos[1] - 1, 1, 1))
+        s = self.np.array(s)
+        print(tuple(s[0, 0]))
