@@ -23,7 +23,6 @@ Python, Tkinter, ttk, Pyperclip, ast
   
 ## TO-DO List    
 [ ] Show color shades when of a selected color    
-[ ] Copy color from any website, app or image via eyedropper tool   
 [ ] REDO / UNDO options  
   
 # License  
