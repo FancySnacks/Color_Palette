@@ -1,3 +1,5 @@
 "AutoLoadSaveFile":"True"
 "PaletteSaveFileDir":"./save/palettes.txt"
 "ConfigFileDir":"./save/config.txt"
+"EyedropperColorCopyKey":"e"
+"EyedropperCancelKey":"q"
