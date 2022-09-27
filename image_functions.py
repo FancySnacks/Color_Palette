@@ -18,7 +18,7 @@ def get_colors(img_path):
     print(extract_colors(img))
     return extract_colors(img)
 
-def palette_to_image(palette_colors: tuple, file):
+def colors_to_image(palette_colors: tuple, file):
     color_palette = render_color_palette(palette_colors, file)
     #overlay_palette(color_palette)
 

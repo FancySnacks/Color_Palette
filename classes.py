@@ -7,7 +7,7 @@
 
 
 from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
-from image_functions import get_colors, palette_to_image
+from image_functions import get_colors, colors_to_image
 from tkinter import *
 from tkinter import colorchooser, filedialog
 from tkinter import ttk
@@ -117,7 +117,7 @@ class MainWindow:
         self.MenuBar.add_cascade(label="Export", menu=self.ExportMenu)
             # History Export
         self.ExportMenu.add_command(label="History as Text File", command=self.save_history_to_txt)
-        self.ExportMenu.add_command(label="History as Image", command=exit)
+        self.ExportMenu.add_command(label="History as Image", command=self.choose_img_save_location_history)
         self.ExportMenu.add_separator()
             # Palette Export
         self.ExportMenu.add_command(label="Palette as Text File", command=self.save_palette_to_txt)
@@ -786,12 +786,35 @@ class MainWindow:
             finally:
                 image.close() if image else ...
 
+    def choose_img_save_location_history(self):
+        image = None
+        if len(self.HistoryMaster.colors) > 0:
+            try:
+                image = filedialog.asksaveasfile(defaultextension="*.png",
+                                                 filetypes=(("PNG Image", "*.png"),
+                                                            ("JPEG Image", "*.jpg"),
+                                                            ("BMP Image", "*.bmp"),
+                                                            ("WEBP Image", "*.webp")))
+            except EXCEPTION as e:
+                print(e)
+            else:
+                self.history_to_image(image)
+            finally:
+                image.close() if image else ...
+
     # Convert current palette to an image
     def palette_to_image(self, file_ref: object):
         colors = []
         for color in self.current_palette.colors:
             new = colors.append(((int(color[0][0]), int(color[0][1]), int(color[0][2])), 3000))
-        palette_to_image(tuple(colors), file_ref)
+        colors_to_image(tuple(colors), file_ref)
+
+    # Convert color history to an image
+    def history_to_image(self, file_ref: object):
+        colors = []
+        for color in self.HistoryMaster.colors:
+            new = colors.append(((int(color[0][0]), int(color[0][1]), int(color[0][2])), 3000))
+        colors_to_image(tuple(colors), file_ref)
 
     # Copy all colors from history to a palette
     def history_to_palette(self):
