@@ -990,6 +990,7 @@ class HistoryMaster():
 
     def remove_from_palette(self, color: ((int, int, int), str, str)):
         if color in self.colors:
+            self.window_ref.remove_current_focus()
             index = self.colors.index(color)
             self.Lista.winfo_children()[index].destroy()
             self.remove_color(index)
@@ -1018,24 +1019,32 @@ class HistoryMaster():
                     self.current_column = 0
                     self.current_row += 1
 
-            self.set_default("palette")
+            self.set_default("palette", index)
 
     def remove_from_history(self, color: ((int,int,int), str, str)):
         if color in self.colors:
+            self.window_ref.remove_current_focus()
             index = self.colors.index(color)
             self.Lista.winfo_children()[index].destroy()
             self.remove_color(index)
             self.reset(False)
-            self.set_default("history")
+            self.set_default("history", index)
 
-    def set_default(self, context: str):
+    def set_default(self, context: str, index: int):
+        self.window_ref.remove_current_focus()
         try:
-            self.window_ref.ColorButton.current_color = self.colors[0]
-            self.window_ref.picked_color = self.colors[0]
-            self.window_ref.ColorButton.ColorButton.config(bg=str(self.colors[0][1]))
-            self.window_ref.ColorButton.current_color = self.colors[0]
-            self.window_ref.previous_hex = str(self.colors[0][1])
+            item = self.colors[index]
+        except IndexError:
+            index = -1
+
+        try:
+            self.window_ref.ColorButton.current_color = self.colors[index]
+            self.window_ref.picked_color = self.colors[index]
+            self.window_ref.ColorButton.ColorButton.config(bg=str(self.colors[index][1]))
+            self.window_ref.ColorButton.current_color = self.colors[index]
+            self.window_ref.previous_hex = str(self.colors[index][1])
             self.manual_entry = False
+            self.color_buttons[index].set_focus()
         except:
             self.window_ref.ColorButton.current_color = ((199, 34, 49),"#c72231", "Name")
             self.window_ref.picked_color = ((199, 34, 49),"#c72231", "Name")
@@ -1043,6 +1052,7 @@ class HistoryMaster():
             self.window_ref.ColorButton.current_color = ((199, 34, 49),"#c72231", "Name")
             self.window_ref.previous_hex = "#c72231"
             self.manual_entry = False
+            self.color_buttons[index].set_focus()
             if context != "history":
                 self.window_ref.update_context("history")
 
