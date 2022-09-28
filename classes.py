@@ -1309,11 +1309,11 @@ class Eyedropper:
 
         self.CopyKey = Text(self.KeysFrame, bg="#212024", height=1, width=15, font=10, fg="#1c9c20")
         self.CopyKey.pack(side="left")
-        self.CopyKey.insert(END, "Copy Color - E")
+        self.CopyKey.insert(END, "Copy Color - {key}".format(key=self.parent.eyedropper_copy_key.upper()))
 
         self.CancelKey = Text(self.KeysFrame, bg="#212024", height=1, width=15, font=10, fg="#b5190e")
         self.CancelKey.pack(side="left")
-        self.CancelKey.insert(END, "Cancel - Q / ESC")
+        self.CancelKey.insert(END, "Cancel - {key} / ESC".format(key=self.parent.eyedropper_cancel_key.upper()))
 
         self.root.bind(self.parent.eyedropper_copy_key, self.parent.eyedropper_event_pick)
         self.root.bind('<Escape>', self.close_window)
