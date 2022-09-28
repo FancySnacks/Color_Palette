@@ -6,13 +6,15 @@
 
 
 
-from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
-from image_functions import get_colors, colors_to_image
 from tkinter import *
 from tkinter import colorchooser, filedialog
 from tkinter import ttk
 import pyperclip
 import ast
+from threading import Thread
+
+from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
+from image_functions import get_colors, colors_to_image
 
 
 
@@ -829,9 +831,10 @@ class MainWindow:
     def eyedropper(self):
         self.eyedropper_ref = Eyedropper(self)
         self.root.bind(self.eyedropper_copy_key, self.eyedropper_event_pick)
-        self.root.bind('<Escape>', self.eyedropper_event_cancel)
-        self.root.bind(self.eyedropper_cancel_key, self.eyedropper_event_cancel)
+        self.root.bind('<Escape>', self.eyedropper_ref.close_window)
+        self.root.bind(self.eyedropper_cancel_key,  self.eyedropper_ref.close_window)
         self.EyedropperButton.config(bg="#68727d", fg="#c5c6c7")
+        self.eyedropper_ref.create_widget()
 
     def eyedropper_del(self):
         del self.eyedropper_ref
@@ -841,7 +844,7 @@ class MainWindow:
         self.EyedropperButton.config(bg="#212024", fg="white")
         picked_color: tuple[int, int, int] = self.eyedropper_ref.copy_color()
         self.ColorButton.update_color((picked_color, rgb_to_hex(picked_color), "Name"), "history")
-        self.eyedropper_del()
+        self.eyedropper_ref.close_window()
 
     def eyedropper_event_cancel(self, event):
         self.EyedropperButton.config(bg="#212024", fg="white")
@@ -912,8 +915,8 @@ class HistoryMaster():
         self.update_indexes()
 
     def update_indexes(self):
-        for index, child in enumerate(self.color_buttons):
-            child.index = index
+        for count, child in enumerate(self.color_buttons):
+            child.index = count
 
     def show_scrollbar(self):
         self.Scrollbar.grid(row=0, column=1, rowspan=7, sticky="NS")
@@ -1089,7 +1092,7 @@ class ColorButton():
         self.ColorName.set("Name")
 
         self.DEFAULT_COLOR = "#c72231"
-        self.current_color = ((199, 34, 49), self.DEFAULT_COLOR, "Name")
+        self.current_color = ("199, 34, 49", self.DEFAULT_COLOR, "Name")
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5)
         self.MainFrame.grid(sticky="W")
@@ -1267,6 +1270,57 @@ class Eyedropper:
         self.cv2 = cv2
 
         self.size = 10
+        self.ColorPreview = None
+        self.T = Thread(target=self.follow)
+
+
+
+    def create_widget(self):
+        # Window
+        self.root = Toplevel()
+        self.root.title("Eyedropper")
+        self.root.geometry("275x225")
+        self.root.resizable(height=False, width=False)
+        self.root.attributes('-topmost', True)
+        self.root.protocol("WM_DELETE_WINDOW", self.close_window)
+        # Variables
+        self.RGBVar = "199, 34, 49"
+        self.HexVar = "#c72231"
+        # Main Frame
+        self.MainFrame = Frame(self.root, bg="#212024", height=200, width=100, pady=15)
+        self.MainFrame.pack(expand=True, fill="both")
+
+        self.ColorPreview = Frame(self.MainFrame, bg="#c72231", height="125", width="175", highlightthickness=1, highlightcolor="white")
+        self.ColorPreview.pack(ipadx=15)
+
+        self.ValuesFrame = Frame(self.MainFrame, bg="#212024")
+        self.ValuesFrame.pack(ipadx=5, ipady=10, fill=X)
+
+        self.RGBValue = Text(self.ValuesFrame, fg="white", bg="#212024", height=1, width=15, font=10)
+        self.RGBValue.pack(side="left")
+        self.RGBValue.insert(END, self.RGBVar)
+
+        self.HexValue = Text(self.ValuesFrame, fg="white", bg="#212024", height=1, width=15, font=10)
+        self.HexValue.pack(side="left")
+        self.HexValue.insert(END, self.HexVar)
+
+        self.KeysFrame = Frame(self.MainFrame, bg="#212024")
+        self.KeysFrame.pack(ipadx=5, ipady=5, fill=X)
+
+        self.CopyKey = Text(self.KeysFrame, bg="#212024", height=1, width=15, font=10, fg="#1c9c20")
+        self.CopyKey.pack(side="left")
+        self.CopyKey.insert(END, "Copy Color - E")
+
+        self.CancelKey = Text(self.KeysFrame, bg="#212024", height=1, width=15, font=10, fg="#b5190e")
+        self.CancelKey.pack(side="left")
+        self.CancelKey.insert(END, "Cancel - Q / ESC")
+
+        self.root.bind(self.parent.eyedropper_copy_key, self.parent.eyedropper_event_pick)
+        self.root.bind('<Escape>', self.close_window)
+        self.root.bind(self.parent.eyedropper_cancel_key, self.close_window)
+
+        self.T.start()
+        self.root.mainloop()
 
     def copy_color(self):
         cursor_pos = self.pg.position()
@@ -1281,3 +1335,22 @@ class Eyedropper:
         screenshot = self.np.array(screenshot)
         color = tuple(screenshot[0, 0])
         return color
+
+    def follow(self):
+        while True:
+            color = (self.copy_color()[0],self.copy_color()[1],self.copy_color()[2])
+            rgb = '{0}, {1}, {2}'.format(color[0], color[1], color[2])
+            hex = rgb_to_hex(color)
+
+            self.RGBVar = rgb
+            self.HexVar = hex
+
+            self.RGBValue.delete(0.0, END)
+            self.RGBValue.insert(END, self.RGBVar)
+            self.HexValue.delete(0.0, END)
+            self.HexValue.insert(END, self.HexVar)
+            self.ColorPreview.config(bg=rgb_to_hex(color))
+
+    def close_window(self, *args):
+        self.root.destroy()
+        self.parent.eyedropper_event_cancel("")
