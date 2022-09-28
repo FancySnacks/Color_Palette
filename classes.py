@@ -188,7 +188,8 @@ class MainWindow:
                                    font=("Lato", 10),
                                    text="⬇ Import ",
                                    fg="white",
-                                   bg="#212024")
+                                   bg="#212024",
+                                   command=self.browse_for_images)
         self.ImportButton.grid(row=0, column=0, sticky="E")
 
         # Export Palette Button
@@ -199,7 +200,8 @@ class MainWindow:
                                    font=("Lato", 10),
                                    text="⬆ Export ",
                                    fg="white",
-                                   bg="#212024")
+                                   bg="#212024",
+                                   command=self.choose_img_save_location)
         self.ExportButton.grid(row=0, column=0, sticky="E")
 
         # Save Palettes Button
@@ -622,7 +624,6 @@ class MainWindow:
         self.configfile_dir = self.load_setting_value("ConfigFileDir", [])
         self.eyedropper_copy_key = self.load_setting_value("EyedropperColorCopyKey", [])
         self.eyedropper_cancel_key = self.load_setting_value("EyedropperCancelKey", [])
-        print(self.eyedropper_cancel_key)
 
     def does_setting_exist(self, setting_name: str):
         return setting_name in self.DEFAULT_SETTINGS.keys()
@@ -875,7 +876,7 @@ class HistoryMaster():
     # --- Functions --- #
 
     def add_to_history(self, color):
-        if color not in self.colors:
+        if not self.is_color_in_history(color[0]):
             if self.is_history_full():
                 self.show_scrollbar()
             self.colors.append(color)
@@ -892,7 +893,7 @@ class HistoryMaster():
 
     def is_color_in_history(self, rgb: tuple) -> bool:
         for color in self.colors:
-            if color[0] == rgb:
+            if str(color[0]).replace('(', "").replace(')', "") == str(rgb).replace('(', "").replace(')', ""):
                 return True
         return False
 
@@ -1159,7 +1160,7 @@ class History_ColorButton():
     def change_main_color(self):
         self.window_ref.ColorButton.update_color((self.color[0], self.color[1], self.ColorName.get()),
                                                  "palette" if self.b_palette else "history")
-        print(self.window_ref.ColorButton.current_color)
+        self.MainFrame.config(highlightbackground="white", highlightthickness=1)
 
     def remove_self(self):
         self.MainFrame.destroy()
@@ -1238,15 +1239,15 @@ class Eyedropper:
         self.size = 10
 
     def copy_color(self):
-        pos = self.pg.position()
-        s = self.pg.screenshot(region=(pos[0] - self.size / 2, pos[1] - self.size / 2, self.size, self.size))
-        im = self.cv2.cvtColor(self.np.array(s), self.cv2.COLOR_RGB2BGR)
-        im = self.cv2.resize(im, (self.size * 10, self.size * 10), interpolation=self.cv2.INTER_AREA)
+        cursor_pos = self.pg.position()
+        s = self.pg.screenshot(region=(cursor_pos[0] - self.size / 2, cursor_pos[1] - self.size / 2, self.size, self.size))
+        image = self.cv2.cvtColor(self.np.array(s), self.cv2.COLOR_RGB2BGR)
+        image = self.cv2.resize(image, (self.size * 10, self.size * 10), interpolation=self.cv2.INTER_AREA)
         st = int((self.size * 10) / 2 - 5)
         ed = int((self.size * 10) / 2 + 5)
 
         cursor_pos = self.pg.position()
-        s = self.pg.screenshot(region=(cursor_pos[0] - 1, cursor_pos[1] - 1, 1, 1))
-        s = self.np.array(s)
-        color = tuple(s[0, 0])
+        screenshot = self.pg.screenshot(region=(cursor_pos[0] - 1, cursor_pos[1] - 1, 1, 1))
+        screenshot = self.np.array(screenshot)
+        color = tuple(screenshot[0, 0])
         return color
