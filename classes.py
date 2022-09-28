@@ -20,7 +20,7 @@ import ast
 class MainWindow:
     def __init__(self):
         # GUI creation
-        self.root = Tk()
+        self.root: Tk = Tk()
         self.root.geometry("670x430")
         self.root.resizable(height=False, width=False)
         self.root.title("Color Palette")
@@ -30,33 +30,36 @@ class MainWindow:
         self.HistoryMaster = None
         self.PaletteMaster = None
         self.ColorButton = None
+        self.eyedropper_ref = None
+
         self.picked_color: tuple = ()
         self.context = ""
-        self.eyedropper_ref = None
-        self.on_top = False
+        self.current_highlighted_button = None
+
+        self.on_top: bool = False
         self.opacity_value = StringVar(self.root)
         self.opacity_value.set("100")
 
         self.hex_user_entry = StringVar(self.root)
-        self.previous_hex = "#c72231"
+        self.previous_hex: str = "#c72231"
         self.rgb_user_entry = StringVar(self.root)
         self.previous_rgb = hex_to_rgb(self.previous_hex)
-        self.manual_entry = False
+        self.manual_entry: bool = False
 
         # Palettes
-        self.saved_palettes = []
+        self.saved_palettes: list[Palette] = []
         self.saved_palettes.append(Palette("Temporary Palette", []))
-        self.palettes = self.saved_palettes
+        self.palettes: list[Palette] = self.saved_palettes
 
         self.selected_palette = StringVar(self.root)
         self.selected_palette.set(self.saved_palettes[0].name)
         self.current_palette = self.saved_palettes[0]
 
         # User Preferences
-        self.savefile_dir = "./save/palettes.txt"
-        self.configfile_dir = "./save/config.txt"
-        self.eyedropper_copy_key = "<e>"
-        self.eyedropper_cancel_key = "<q>"
+        self.savefile_dir: str = "./save/palettes.txt"
+        self.configfile_dir: str = "./save/config.txt"
+        self.eyedropper_copy_key: str = "<e>"
+        self.eyedropper_cancel_key: str = "<q>"
 
         self.DEFAULT_SETTINGS = {"AutoLoadSaveFile":"True",
                                 "PaletteSaveFileDir":f'{self.savefile_dir}',
@@ -524,7 +527,7 @@ class MainWindow:
 
         # Clear colors in a palette if the previous one wasn't a 'Temporary Palette'
         # Temporary Palette is a working area that is reset upon closing the program
-        # Temporary Palette copies the palettes over to the new palett you create
+        # Temporary Palette copies the palettes over to the new palette you create
         if prev != "Temporary Palette":
             self.PaletteMaster.clear_history()
 
@@ -718,6 +721,7 @@ class MainWindow:
     # Add random color to the history
     def add_random_color(self):
         random_color = random_rgb()
+        self.remove_current_focus()
         self.update_color_values(rgb_to_hex(random_color), random_color, "history")
 
     # Save palette to a text file
@@ -842,6 +846,11 @@ class MainWindow:
     def eyedropper_event_cancel(self, event):
         self.EyedropperButton.config(bg="#212024", fg="white")
         self.eyedropper_del()
+
+    def remove_current_focus(self):
+        if self.current_highlighted_button:
+            self.current_highlighted_button.remove_focus()
+            self.current_highlighted_button = None
 
 
 # Stores colors
@@ -1091,6 +1100,7 @@ class ColorButton():
             print("No color was picked")
 
     def update_color(self, color, context):
+        self.window_ref.remove_current_focus()
         self.current_color = (color[0], color[1], "Name")
         self.ColorButton.config(bg=color[1])
         self.window_ref.update_color_values(hex_value=self.current_color[1], rgb_value=self.current_color[0], context=context)
@@ -1131,7 +1141,7 @@ class History_ColorButton():
         self.color = color
         self.ColorName = StringVar(self.window_root)
 
-        self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2)
+        self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=5, padx=2, highlightbackground="white")
         self.MainFrame.grid(row=row, column=column)
 
         self.ColorButton = Button(self.MainFrame, height=1, width=8, bg=self.color[1], highlightbackground = "black", highlightthickness = 2, bd=0, command=self.change_main_color)
@@ -1141,6 +1151,8 @@ class History_ColorButton():
         self.HEXEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
         self.HEXEntry.insert(END, self.color[1])
         self.HEXEntry.grid(row=1, column=0)
+
+        self.set_focus()
 
         if b_palette:
             self.NameEntry = Entry(self.MainFrame, textvariable=self.ColorName, bg="#212024", fg="#aba7a7", width=10,
@@ -1160,7 +1172,7 @@ class History_ColorButton():
     def change_main_color(self):
         self.window_ref.ColorButton.update_color((self.color[0], self.color[1], self.ColorName.get()),
                                                  "palette" if self.b_palette else "history")
-        self.MainFrame.config(highlightbackground="white", highlightthickness=1)
+        self.set_focus()
 
     def remove_self(self):
         self.MainFrame.destroy()
@@ -1169,6 +1181,14 @@ class History_ColorButton():
     def save_color_name(self, *args):
         color_info = self.palette_ref.colors[self.index]
         self.palette_ref.colors[self.index] = (color_info[0], color_info[1], self.ColorName.get())
+
+    def set_focus(self):
+        self.window_ref.remove_current_focus()
+        self.window_ref.current_highlighted_button = self
+        self.MainFrame.config(highlightthickness=1)
+
+    def remove_focus(self):
+        self.MainFrame.config(highlightthickness=0)
 
 
 
