@@ -9,9 +9,9 @@
 from tkinter import *
 from tkinter import colorchooser, filedialog
 from tkinter import ttk
-import pyperclip
-import ast
 from threading import Thread
+import ast
+import pyperclip
 
 from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
 from image_functions import get_colors, colors_to_image
@@ -481,7 +481,6 @@ class MainWindow:
         return [Palette.name for Palette in self.palettes]
 
     # Triggers when you switch to another palette using the dropdown box
-    # TODO: Obsolete, replace references with the function below, then remove it.
     def on_palette_changed(self, event):
         print("Switched to " + self.selected_palette.get())
         self.on_palette_changed_event()
@@ -570,7 +569,7 @@ class MainWindow:
 
     def does_save_file_exist(self, name: str):
         try:
-            with open(name, "r") as f:
+            with open(name, "r"):
                 print("Found save file")
                 return True
         except:
@@ -587,7 +586,7 @@ class MainWindow:
                 if len(lines) > 0:
                     for line in lines: # read lines from text file, each palette is a separate line
                         palette_info = ast.literal_eval(line) # convert string representation of a list into actual list of colors
-                        new_palette = self.add_palette()
+                        self.add_palette()
                         self.palettes[-1].name = palette_info[0]
                         self.palettes[-1].colors = palette_info[1]
                         self.PaletteMenu.config(values=self.get_palettes())
@@ -732,7 +731,7 @@ class MainWindow:
 
     # Save history to a text file
     def save_history_to_txt(self):
-      self.save_as_txt("history")
+        self.save_as_txt("history")
 
     def save_as_txt(self, context: str):
         file = None
@@ -1327,8 +1326,6 @@ class Eyedropper:
         s = self.pg.screenshot(region=(cursor_pos[0] - self.size / 2, cursor_pos[1] - self.size / 2, self.size, self.size))
         image = self.cv2.cvtColor(self.np.array(s), self.cv2.COLOR_RGB2BGR)
         image = self.cv2.resize(image, (self.size * 10, self.size * 10), interpolation=self.cv2.INTER_AREA)
-        st = int((self.size * 10) / 2 - 5)
-        ed = int((self.size * 10) / 2 + 5)
 
         cursor_pos = self.pg.position()
         screenshot = self.pg.screenshot(region=(cursor_pos[0] - 1, cursor_pos[1] - 1, 1, 1))
