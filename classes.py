@@ -13,7 +13,7 @@ from threading import Thread
 import ast
 import pyperclip
 
-from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb, get_shade
+from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb, get_shade, str_to_rgb, rgb_to_color, color, rgb_value
 from image_functions import get_colors, colors_to_image
 
 
@@ -23,7 +23,7 @@ class MainWindow:
     def __init__(self):
         # GUI creation
         self.root: Tk = Tk()
-        self.root.geometry("670x430")
+        self.root.geometry("670x475")
         self.root.resizable(height=False, width=False)
         self.root.title("Color Palette")
         self.root.config(bg="#212024")
@@ -34,7 +34,7 @@ class MainWindow:
         self.ColorButton = None
         self.eyedropper_ref = None
 
-        self.picked_color: tuple = ()
+        self.picked_color = color
         self.context = ""
         self.current_highlighted_button = None
 
@@ -76,14 +76,6 @@ class MainWindow:
         self.MainFrame = Frame(self.root, padx=5, pady=10, bg="#212024")
         self.MainFrame.pack(expand=True, fill=Y)
 
-        # --- Top Toolbar --- #
-        self.MenuBar = Menu(self.root)
-        self.root.config(menu=self.MenuBar)
-
-        self.FileMenu = Menu(self.MenuBar)
-        self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
-        self.FileMenu.add_command(label="Exit", command=exit)
-
 
         # --- Top Toolbar --- #
 
@@ -94,7 +86,7 @@ class MainWindow:
         self.FileMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="File", menu=self.FileMenu)
 
-        # General TOol Menu
+        # General Tool Menu
         self.ToolMenu = Menu(self.MenuBar, tearoff=0)
         self.MenuBar.add_cascade(label="Edit", menu=self.ToolMenu)
         self.ToolMenu.add_command(label="Random Color", command=self.add_random_color)
@@ -235,7 +227,7 @@ class MainWindow:
                                 fg="white", pady=5)
         self.ColorLabel.grid(row=0, column=0, sticky="NW")
 
-        color_button = ColorButton(self.root, self, self.ColorFrame, 10, 25)
+        color_button = ColorButton(self.root, self, self.ColorFrame, 8, 25)
         self.ColorButton = color_button
 
         # Color values
@@ -244,7 +236,7 @@ class MainWindow:
         self.HexFrame.grid(row=3, column=0, sticky="NW")
 
         self.HexLabel = Label(self.HexFrame,
-                              text="Hex Code :",
+                              text="HEX Code :",
                               font=("Lato", 11, "bold"),
                               bg="#212024",
                               fg="#aba7a7",
@@ -310,6 +302,8 @@ class MainWindow:
                                      bg="#212024",
                                      command=self.remove_color)
         self.DelColorButton.grid(row=0, column=1, sticky="NW")
+
+        self.ShadeMaster = HistoryMaster(self.root, self, self.ColorFrame, 210, 140)
 
 
         # --- Color History --- #
@@ -433,7 +427,7 @@ class MainWindow:
 
     # --- Functions --- #
 
-    def update_color_values(self, hex_value: str, rgb_value: tuple, context: str):
+    def update_color_values(self, hex_value: str, rgb_value: rgb_value, context: str):
         self.manual_entry = False
 
         # Update HEX value
@@ -454,6 +448,13 @@ class MainWindow:
         self.RGBCopyButton.color_value = f_rgb_value
 
         self.HistoryMaster.add_to_history((rgb_value, hex_value, 'Name')) # Add new color to the history
+        self.ShadeMaster.clear_history()
+        self.add_shade(1.25)
+        self.add_shade(1.50)
+        self.add_shade(1.75)
+        self.add_shade(0.75)
+        self.add_shade(0.50)
+        self.add_shade(0.25)
 
     # Update the 'remove button' context so in future it will remove color from either color history or current palette >
     # depending on where the color button you've clicked on is located
@@ -463,6 +464,14 @@ class MainWindow:
             self.DelColorButton.config(text="❌ Remove (🎨)")
         else:
             self.DelColorButton.config(text="❌ Remove (⌛)")
+
+    def add_shade(self, scalar: float):
+        rgb = str_to_rgb(self.ColorButton.current_color[0])
+        shade = get_shade(rgb, scalar)
+        new_button = self.ShadeMaster.add_to_palette(rgb_to_color(shade))
+        scalar_str = int(abs(100 - scalar*100))
+        modifier = "+" if scalar < 1 else "-"
+        new_button.ColorName.set(f'{modifier}{scalar_str}%')
 
     # Add picked color to the current palette
     def add_color_to_palette(self):
@@ -841,7 +850,7 @@ class MainWindow:
 
     def eyedropper_event_pick(self, event):
         self.EyedropperButton.config(bg="#212024", fg="white")
-        picked_color: tuple[int, int, int] = self.eyedropper_ref.copy_color()
+        picked_color: rgb_value = self.eyedropper_ref.copy_color()
         self.ColorButton.update_color((picked_color, rgb_to_hex(picked_color), "Name"), "history")
         self.eyedropper_ref.close_window()
 
@@ -858,7 +867,7 @@ class MainWindow:
 # Stores colors
 # Is used both for color history and color palettes
 class HistoryMaster():
-    def __init__(self, root, window_ref, parent_widget, width):
+    def __init__(self, root, window_ref, parent_widget, width, height=305):
         self.window_root = root
         self.window_ref = window_ref
         self.parent_widget = parent_widget
@@ -867,9 +876,9 @@ class HistoryMaster():
         self.color_buttons = []
 
         self.MainFrame = Frame(self.parent_widget, bg="#212024", pady=3, bd=0)
-        self.MainFrame.grid(row=2, sticky="NS")
+        self.MainFrame.grid(row=5, sticky="NS")
 
-        self.Canvas = Canvas(self.MainFrame, bg="#212024", width=width, height=305, bd=0, highlightthickness = 0)
+        self.Canvas = Canvas(self.MainFrame, bg="#212024", width=width, height=height, bd=0, highlightthickness = 0)
         self.Canvas.grid()
 
         self.Scrollbar = Scrollbar(self.MainFrame, orient=VERTICAL, command=self.Canvas.yview, bd=0)
@@ -902,7 +911,7 @@ class HistoryMaster():
 
             self.update_widgets()
 
-    def is_color_in_history(self, rgb: tuple) -> bool:
+    def is_color_in_history(self, rgb: rgb_value) -> bool:
         for color in self.colors:
             if str(color[0]).replace('(', "").replace(')', "") == str(rgb).replace('(', "").replace(')', ""):
                 return True
@@ -984,6 +993,8 @@ class HistoryMaster():
             else:
                 self.current_column = 0
                 self.current_row += 1
+
+            return new_color
 
         self.update_widgets()
 
@@ -1112,9 +1123,9 @@ class ColorButton():
             print("No color was picked")
 
     def update_color(self, color, context):
-        self.window_ref.remove_current_focus()
         self.current_color = (color[0], color[1], "Name")
         self.ColorButton.config(bg=color[1])
+        self.window_ref.remove_current_focus()
         self.window_ref.update_color_values(hex_value=self.current_color[1], rgb_value=self.current_color[0], context=context)
 
 

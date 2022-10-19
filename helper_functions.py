@@ -12,6 +12,7 @@ from typing import Tuple
 
 cmyk_value = Tuple[float, float, float, float]
 rgb_value = Tuple[int, int, int]
+color = Tuple[rgb_value, str, str]
 
 
 # check if string parameter is a valid HEX value
@@ -37,6 +38,12 @@ def cmyk_to_rgb(cmyk: cmyk_value) -> rgb_value:
     g = ceil((255 * (1 - cmyk[1]/100) * (1 - cmyk[3]/100))+ 1)
     b = ceil((255 * (1 - cmyk[2]/100) * (1 - cmyk[3]/100))+ 1)
     return (r,g,b)
+
+def str_to_rgb(rgb_str: (str, str, str)) -> rgb_value:
+    return (int(rgb_str[0]), int(rgb_str[1]), int(rgb_str[2]))
+
+def rgb_to_color(rgb: rgb_value) -> color:
+    return (rgb, rgb_to_hex(rgb), "")
 
 def random_rgb() -> rgb_value:
     return (randint(0, 255), randint(0, 255), randint(0, 255))
