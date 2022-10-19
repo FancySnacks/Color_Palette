@@ -13,7 +13,7 @@ from threading import Thread
 import ast
 import pyperclip
 
-from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb
+from helper_functions import is_hex_color, is_rgb_color, hex_to_rgb, rgb_to_hex, random_rgb, get_shade
 from image_functions import get_colors, colors_to_image
 
 
