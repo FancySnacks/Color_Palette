@@ -303,7 +303,7 @@ class MainWindow:
                                      command=self.remove_color)
         self.DelColorButton.grid(row=0, column=1, sticky="NW")
 
-        self.ShadeMaster = HistoryMaster(self.root, self, self.ColorFrame, 210, 140)
+        self.ShadeMaster = ShadesMaster(self.root, self, self.ColorFrame, 210, 140)
 
 
         # --- Color History --- #
@@ -427,7 +427,7 @@ class MainWindow:
 
     # --- Functions --- #
 
-    def update_color_values(self, hex_value: str, rgb_value: rgb_value, context: str):
+    def update_color_values(self, hex_value: str, rgb_value: rgb_value, context: str, create_new_button: bool):
         self.manual_entry = False
 
         # Update HEX value
@@ -447,14 +447,15 @@ class MainWindow:
         self.HexCopyButton.color_value = hex_value
         self.RGBCopyButton.color_value = f_rgb_value
 
-        self.HistoryMaster.add_to_history((rgb_value, hex_value, 'Name')) # Add new color to the history
-        self.ShadeMaster.clear_history()
-        self.add_shade(1.25)
-        self.add_shade(1.50)
-        self.add_shade(1.75)
-        self.add_shade(0.75)
-        self.add_shade(0.50)
-        self.add_shade(0.25)
+        if create_new_button:
+            self.HistoryMaster.add_to_history((rgb_value, hex_value, 'Name')) # Add new color to the history
+            self.ShadeMaster.clear_history()
+            self.add_shade(1.25)
+            self.add_shade(1.50)
+            self.add_shade(1.75)
+            self.add_shade(0.75)
+            self.add_shade(0.50)
+            self.add_shade(0.25)
 
     # Update the 'remove button' context so in future it will remove color from either color history or current palette >
     # depending on where the color button you've clicked on is located
@@ -471,7 +472,8 @@ class MainWindow:
         new_button = self.ShadeMaster.add_to_palette(rgb_to_color(shade))
         scalar_str = int(abs(100 - scalar*100))
         modifier = "+" if scalar < 1 else "-"
-        new_button.ColorName.set(f'{modifier}{scalar_str}%')
+        if new_button:
+            new_button.ColorName.set(f'{modifier}{scalar_str}%')
 
     # Add picked color to the current palette
     def add_color_to_palette(self):
@@ -1070,6 +1072,47 @@ class HistoryMaster():
                 self.window_ref.update_context("history")
 
 
+
+# Color Shades
+class ShadesMaster(HistoryMaster):
+
+    # Add a shade to the color list
+    def add_to_palette(self, color: ((int, int, int), str, str)):
+        if color not in self.colors:
+            if self.is_palette_full():
+                self.show_scrollbar()
+            self.colors.append((color[0], color[1], color[2]))
+            new_color = History_ColorButton(self.window_root,
+                                            self.window_ref,
+                                            self.Lista,
+                                            self.window_ref.current_palette,
+                                            (color[0], color[1]),
+                                            len(self.color_buttons),
+                                            self.current_column,
+                                            self.current_row,
+                                            False,
+                                            color[2] or 'Name',
+                                            True)
+            new_color.context = "history"
+            self.window_ref.update_context("history")
+            self.color_buttons.append(new_color)
+
+            if self.current_column == 0:
+                self.current_column = 1
+            elif self.current_column == 1:
+                self.current_column = 2
+            else:
+                self.current_column = 0
+                self.current_row += 1
+
+            return new_color
+
+        self.update_widgets()
+
+        if color not in self.window_ref.current_palette.colors:
+            self.window_ref.current_palette.colors.append((color[0], color[1], "Name"))
+
+
 class ClipboardButton():
     def __init__(self, root, window_ref, parent_widget, color_value):
         self.window_root = root
@@ -1122,11 +1165,14 @@ class ColorButton():
         else:
             print("No color was picked")
 
-    def update_color(self, color, context):
+    def update_color(self, color, context, create_new_button:bool = True):
         self.current_color = (color[0], color[1], "Name")
         self.ColorButton.config(bg=color[1])
         self.window_ref.remove_current_focus()
-        self.window_ref.update_color_values(hex_value=self.current_color[1], rgb_value=self.current_color[0], context=context)
+        self.window_ref.update_color_values(hex_value=self.current_color[1],
+                                            rgb_value=self.current_color[0],
+                                            context=context,
+                                            create_new_button = create_new_button)
 
 
 
@@ -1149,7 +1195,8 @@ class History_ColorButton():
                  column: int,
                  row: int,
                  b_palette: bool,
-                 color_name: str):
+                 color_name: str,
+                 not_focusable: bool = False):
 
         self.window_root = root
         self.window_ref = window_ref
@@ -1160,6 +1207,7 @@ class History_ColorButton():
         self.row = row
         self.b_palette = b_palette
         self.context = "palette"
+        self.not_focusable = not_focusable
 
         self.color = color
         self.ColorName = StringVar(self.window_root)
@@ -1175,7 +1223,8 @@ class History_ColorButton():
         self.HEXEntry.insert(END, self.color[1])
         self.HEXEntry.grid(row=1, column=0)
 
-        self.set_focus()
+        if self.not_focusable == False:
+            self.set_focus()
 
         if b_palette:
             self.NameEntry = Entry(self.MainFrame, textvariable=self.ColorName, bg="#212024", fg="#aba7a7", width=10,
@@ -1195,7 +1244,8 @@ class History_ColorButton():
     def change_main_color(self):
         self.window_ref.ColorButton.update_color((self.color[0], self.color[1], self.ColorName.get()),
                                                  "palette" if self.b_palette else "history")
-        self.set_focus()
+        if self.not_focusable == False:
+            self.set_focus()
 
     def remove_self(self):
         self.MainFrame.destroy()
@@ -1207,8 +1257,8 @@ class History_ColorButton():
 
     def set_focus(self):
         self.window_ref.remove_current_focus()
-        self.window_ref.current_highlighted_button = self
         self.MainFrame.config(highlightthickness=1)
+        self.window_ref.current_highlighted_button = self
 
     def remove_focus(self):
         self.MainFrame.config(highlightthickness=0)
