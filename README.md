@@ -23,7 +23,7 @@ Python, Tkinter, ttk, Pyperclip, ast
   
 ## TO-DO List    
 [ ] Show color shades when of a selected color    
-[ ] REDO / UNDO options  
+  
   
 # License  
 GNU GENERAL PUBLIC LICENSE  
