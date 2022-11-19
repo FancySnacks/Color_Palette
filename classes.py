@@ -902,7 +902,7 @@ class HistoryMaster():
             if self.is_history_full():
                 self.show_scrollbar()
             self.colors.append(color)
-            new_color = History_ColorButton(self.window_root, self.window_ref, self.Lista, self.window_ref.current_palette, color, len(self.color_buttons), self.current_column, self.current_row, False, "Name")
+            new_color = History_ColorButton(self.window_root, self.window_ref, self.Lista, self.window_ref.current_palette, color, len(self.color_buttons), self.current_column, self.current_row, False, "Name", "history")
             self.color_buttons.append(new_color)
 
             if self.current_column == 0:
@@ -949,7 +949,7 @@ class HistoryMaster():
             child.destroy()
         self.color_buttons = []
         for color in self.colors:
-            new_button = History_ColorButton(self.window_root, self.window_ref, self.Lista, self.window_ref.current_palette, color, len(self.color_buttons), self.current_column, self.current_row, b_palette, "Name")
+            new_button = History_ColorButton(self.window_root, self.window_ref, self.Lista, self.window_ref.current_palette, color, len(self.color_buttons), self.current_column, self.current_row, b_palette, "Name", "palette" if b_palette else "history")
             if b_palette:
                 new_button.context = "palette"
             self.color_buttons.append(new_button)
@@ -983,7 +983,7 @@ class HistoryMaster():
                                             self.current_column,
                                             self.current_row,
                                             True,
-                                            color[2] or 'Name')
+                                            color[2] or 'Name', "palette")
             new_color.context = "palette"
             self.window_ref.update_context("palette")
             self.color_buttons.append(new_color)
@@ -1023,7 +1023,7 @@ class HistoryMaster():
                 new_button = History_ColorButton(self.window_root, self.window_ref, self.Lista, self.window_ref.current_palette,
                                                  color,
                                                  len(self.color_buttons), self.current_column, self.current_row,
-                                                 True, "Name")
+                                                 True, "Name", "palette")
                 new_button.context = "palette"
                 self.color_buttons.append(new_button)
                 if self.current_column == 0:
@@ -1082,7 +1082,7 @@ class ShadesMaster(HistoryMaster):
             if self.is_palette_full():
                 self.show_scrollbar()
             self.colors.append((color[0], color[1], color[2]))
-            new_color = History_ColorButton(self.window_root,
+            new_color = ShadeButton(self.window_root,
                                             self.window_ref,
                                             self.Lista,
                                             self.window_ref.current_palette,
@@ -1092,7 +1092,7 @@ class ShadesMaster(HistoryMaster):
                                             self.current_row,
                                             False,
                                             color[2] or 'Name',
-                                            True)
+                                            "shade", not_focusable=True)
             new_color.context = "history"
             self.window_ref.update_context("history")
             self.color_buttons.append(new_color)
@@ -1196,6 +1196,7 @@ class History_ColorButton():
                  row: int,
                  b_palette: bool,
                  color_name: str,
+                 context: str,
                  not_focusable: bool = False):
 
         self.window_root = root
@@ -1206,7 +1207,7 @@ class History_ColorButton():
         self.column = column
         self.row = row
         self.b_palette = b_palette
-        self.context = "palette"
+        self.context = context
         self.not_focusable = not_focusable
 
         self.color = color
@@ -1226,7 +1227,7 @@ class History_ColorButton():
         if self.not_focusable == False:
             self.set_focus()
 
-        if b_palette:
+        if self.context == "palette" or "shade":
             self.NameEntry = Entry(self.MainFrame, textvariable=self.ColorName, bg="#212024", fg="#aba7a7", width=10,
                                    highlightthickness=0)
             self.NameEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
@@ -1262,6 +1263,30 @@ class History_ColorButton():
 
     def remove_focus(self):
         self.MainFrame.config(highlightthickness=0)
+
+
+class ShadeButton(History_ColorButton):
+
+    def __init__(self, root: Tk, window_ref: MainWindow, parent_widget, palette_ref: Palette, color: (str, str),
+                 index: int, column: int, row: int, b_palette: bool, color_name: str, context: str, not_focusable):
+        super().__init__(root, window_ref, parent_widget, palette_ref, color, index, column, row, b_palette, color_name,
+                         context, not_focusable)
+
+    def save_color_name(self, *args):
+        #color_info = self.palette_ref.colors[self.index]
+        #self.palette_ref.colors[self.index] = (color_info[0], color_info[1], self.ColorName.get())
+        try:
+            float(self.ColorName.get())
+        except ValueError:
+            print("not a float")
+        else:
+            print("is a float")
+            RGB_value = get_shade(self.color[0], float(self.ColorName.get()))
+            HEX_Value = rgb_to_hex(RGB_value)
+            self.color = (RGB_value, HEX_Value, self.ColorName)
+            self.ColorButton.config(bg=self.color[1])
+            self.HEXEntry.delete(0, END)
+            self.HEXEntry.insert(END, HEX_Value)
 
 
 
