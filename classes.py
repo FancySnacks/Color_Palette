@@ -321,7 +321,7 @@ class MainWindow:
         self.HistoryLabel.grid(row=0, column=0, sticky="NW")
 
         # Create 'History Master' object, it manages history of chosen colors
-        self.HistoryMaster = HistoryMaster(self.root, self, self.HistoryFrame, 150)
+        self.HistoryMaster = HistoryMaster(self.root, self, self.HistoryFrame, 150, 355)
         self.HistoryMaster.add_to_history(self.ColorButton.current_color)
 
         # Clear History Button
@@ -836,7 +836,7 @@ class MainWindow:
     # Copy all colors from history to a palette
     def history_to_palette(self):
         for color in self.HistoryMaster.colors:
-            self.PaletteMaster.add_to_palette((color[0], rgb_to_hex(color[0]), 'Name'))
+            self.PaletteMaster.add_to_palette(color)
 
     def eyedropper(self):
         self.eyedropper_ref = Eyedropper(self)
@@ -869,7 +869,7 @@ class MainWindow:
 # Stores colors
 # Is used both for color history and color palettes
 class HistoryMaster():
-    def __init__(self, root, window_ref, parent_widget, width, height=305):
+    def __init__(self, root, window_ref, parent_widget, width: int, height=355):
         self.window_root = root
         self.window_ref = window_ref
         self.parent_widget = parent_widget
@@ -935,11 +935,8 @@ class HistoryMaster():
         self.window_root.update_idletasks()
         self.Canvas.configure(scrollregion = self.Canvas.bbox('all'))
 
-    def is_history_full(self) -> bool:
-        return len(self.colors) > 11
-
-    def is_palette_full(self) -> bool:
-        return len(self.colors) > 11
+    def is_history_full(self, maxlength:int = 8) -> bool:
+        return len(self.colors) > maxlength
 
     def reset(self, b_palette):
         self.update_indexes()
@@ -970,9 +967,10 @@ class HistoryMaster():
         self.current_row = 0
 
     def add_to_palette(self, color: ((int, int, int), str, str)):
+        new_color = None
+        if self.is_history_full(maxlength=14):
+            self.show_scrollbar()
         if color not in self.colors:
-            if self.is_palette_full():
-                self.show_scrollbar()
             self.colors.append((color[0], color[1], color[2]))
             new_color = History_ColorButton(self.window_root,
                                             self.window_ref,
@@ -996,12 +994,11 @@ class HistoryMaster():
                 self.current_column = 0
                 self.current_row += 1
 
-            return new_color
-
         self.update_widgets()
 
         if color not in self.window_ref.current_palette.colors:
             self.window_ref.current_palette.colors.append((color[0], color[1], "Name"))
+            return new_color
 
     def remove_from_palette(self, color: ((int, int, int), str, str)):
         if color in self.colors:
@@ -1079,7 +1076,7 @@ class ShadesMaster(HistoryMaster):
     # Add a shade to the color list
     def add_to_palette(self, color: ((int, int, int), str, str)):
         if color not in self.colors:
-            if self.is_palette_full():
+            if self.is_history_full():
                 self.show_scrollbar()
             self.colors.append((color[0], color[1], color[2]))
             new_color = ShadeButton(self.window_root,
