@@ -31,6 +31,11 @@ def hex_to_rgb(hex_value: str) -> str:
     return str(tuple(int(hex[i:i + 2], 16) for i in (0, 2, 4)))
 
 def rgb_to_hex(rgb: rgb_value) -> str:
+    # Legacy Code
+    #rgb = (min(255, rgb[0]),min(255, rgb[1]),min(255, rgb[2]))
+    #hex = bytes(rgb).hex()
+    #return f'#{hex}'
+
     return '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
 
 def cmyk_to_rgb(cmyk: cmyk_value) -> rgb_value:
