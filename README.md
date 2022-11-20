@@ -22,8 +22,8 @@ This program also allows you for quick export of the saved color palettes as .jp
 Python, Tkinter, ttk, Pyperclip, ast  
   
 ## TO-DO List    
-[ ] Show color shades when of a selected color    
-[ ] REDO / UNDO options  
+[ ] REDO / UNDO
+  
   
 # License  
 GNU GENERAL PUBLIC LICENSE  
