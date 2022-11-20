@@ -1225,7 +1225,7 @@ class History_ColorButton():
         if self.not_focusable == False:
             self.set_focus()
 
-        if self.context == "palette" or "shade":
+        if b_palette or context == "shade":
             self.NameEntry = Entry(self.MainFrame, textvariable=self.ColorName, bg="#212024", fg="#aba7a7", width=10,
                                    highlightthickness=0)
             self.NameEntry.configure(highlightbackground="#212024", highlightcolor="#212024")
