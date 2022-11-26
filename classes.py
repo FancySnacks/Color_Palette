@@ -735,7 +735,7 @@ class MainWindow:
     def add_random_color(self):
         random_color = random_rgb()
         self.remove_current_focus()
-        self.update_color_values(rgb_to_hex(random_color), random_color, "history")
+        self.update_color_values(rgb_to_hex(random_color), random_color, "history", True)
 
     # Save palette to a text file
     def save_palette_to_txt(self):
