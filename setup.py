@@ -18,9 +18,9 @@ setup(
     license="GNU GPLv3",
     classifiers=[
                 "Topic :: Software Development",
-                "Programming Language :: Python :: 3.10",
+                "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
                 "License :: OSI Approved :: GNU GPLv3 License",
-                "Operating System :: Windows 10",
+                "Operating System :: Microsoft :: Windows :: Windows 10",
 ],
     packages=['src'],
     install_requires=[
