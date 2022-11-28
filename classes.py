@@ -665,8 +665,11 @@ class MainWindow:
         config_file = None
         try:
             config_file = open(self.configfile_dir, "x")
-        except Exception:
-            config_file = open(self.configfile_dir, "w")
+        except FileNotFoundError:
+            try:
+                config_file = open(self.configfile_dir, "w")
+            except Exception:
+                pass
         finally:
             if config_file:
                 config_file.write(self.config_to_text())
