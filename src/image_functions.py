@@ -20,7 +20,6 @@ def get_colors(img_path):
 
 def colors_to_image(palette_colors: tuple, file):
     color_palette = render_color_palette(palette_colors, file)
-    #overlay_palette(color_palette)
 
 def study_image(image_path):
     img = PIL.Image.open(image_path)

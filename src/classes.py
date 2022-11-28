@@ -59,8 +59,8 @@ class MainWindow:
         self.current_palette = self.saved_palettes[0]
 
         # User Preferences
-        self.savefile_dir: str = "./save/palettes.txt"
-        self.configfile_dir: str = "./save/config.txt"
+        self.savefile_dir: str = "../save/palettes.txt"
+        self.configfile_dir: str = "../save/config.txt"
         self.eyedropper_copy_key: str = "<e>"
         self.eyedropper_cancel_key: str = "<q>"
 
