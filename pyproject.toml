@@ -1,6 +1,6 @@
 [project]
 name = "Color_Palette_ARaveMistake"
-version = "0.0.1"
+version = "1.0.0"
 authors = [
   { name="Adrian Urbaniak", email="adrian.urbaniak1336@gmail.com" },
 ]
@@ -18,7 +18,7 @@ dependencies = [
 ]
 classifiers = [
                 "Topic :: Software Development",
-                "Programming Language :: Python :: 3",
+                "Programming Language :: Python :: 3.10",
                 "License :: OSI Approved :: GNU GPLv3 License",
                 "Operating System :: Windows 10",
 ]
