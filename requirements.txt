@@ -1,7 +1,7 @@
-extcolors==1.0.0
-matplotlib==3.6.2
-numpy==1.23.5
-opencv_python==4.6.0.66
-Pillow==9.3.0
-PyAutoGUI==0.9.53
-pyperclip==1.8.2
+extcolors>=1.0.0,<2.0
+matplotlib>=3.6.2,<4.0
+numpy>=1.23.5,<2.0
+opencv_python>=4.6.0.66,<5.0
+Pillow>=9.3.0,<10.0
+PyAutoGUI>=0.9.53,<1.0
+pyperclip>=1.8.2,<2.0
