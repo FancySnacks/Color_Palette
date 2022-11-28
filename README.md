@@ -18,8 +18,8 @@ This program also allows you for quick export of the saved color palettes as .jp
 * Create color palette from an image  
 * Window can stay on top of other programs
 
-## Tech  
-Python, Tkinter, ttk, Pyperclip, ast  
+## Accessibility  
+Tested on Windows 10, currently only works on Windows systems  
   
 ## TO-DO List    
 [ ] REDO / UNDO
