@@ -8,7 +8,7 @@ with open("LICENSE.md") as f:
 
 setup(
     name="Color_Palette_ARaveMistake",
-    version="1.0.0",
+    version="1.0.1",
     description="A tool for artists that allows to create and save color palettes using text and images.",
     long_description=readme,
     long_description_content_type="text/markdown",
