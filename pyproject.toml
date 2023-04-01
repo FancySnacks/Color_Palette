@@ -31,7 +31,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project.urls]
-"Homepage" = "https://github.com/A-Rave-Mistake/Color_Palette"
+"Homepage" = "https://github.com/FancySnacks/Color_Palette"
 
 [tool.black]
 include = '\.pyi?$'
